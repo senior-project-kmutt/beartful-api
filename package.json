@@ -1,0 +1,21 @@
+{
+  "name": "beartful-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/senior-project-kmutt/beartful-api.git",
+  "author": "mottdy <mottdy22813@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon --watch src src/index.ts",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "fastify": "^4.23.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.1",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
