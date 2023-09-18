@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "fastify": "^4.23.2",
-    "mongoose": "^7.5.2"
+    "mongoose": "^5.13.20"
   },
   "devDependencies": {
     "@types/node": "^20.6.1",

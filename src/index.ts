@@ -1,10 +1,15 @@
 import app from "./app";
 import { config } from "./config/constant"
-import mongoose from "mongoose";
+import mongoose, { ConnectOptions } from "mongoose";
 
 const startApp = async () => {
     try {
-        await mongoose.connect(config.mongodb.uri, { retryWrites: true, w: 'majority' });
+        const options: ConnectOptions = {
+            useNewUrlParser: true,
+            useCreateIndex: true,
+            useUnifiedTopology: true,
+        };
+        await mongoose.connect(config.mongodb.uri, options);
         console.log("MongoDB connected successfully");
     } catch (err) {
         console.error("MongoDB connection error:", err);
