@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
-import userController from "./controller/userController";
-import indexController from "./controller/indexController";
+import userController from "./controllers/userController";
+import indexController from "./controllers/indexController";
 
 export default async function router(fastify: FastifyInstance) {
   fastify.register(userController, { prefix: "/api/v1/user" });

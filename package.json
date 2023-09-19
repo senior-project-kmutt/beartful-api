@@ -10,7 +10,8 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "fastify": "^4.23.2"
+    "fastify": "^4.23.2",
+    "mongoose": "^5.13.20"
   },
   "devDependencies": {
     "@types/node": "^20.6.1",
