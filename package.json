@@ -6,7 +6,7 @@
   "author": "mottdy <mottdy22813@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "MONGO_URI='mongodb+srv://beartful:5P6Jgx5UfSt6zkmm@beartful-db.xo9cguc.mongodb.net' nodemon --watch src src/index.ts",
+    "dev": "nodemon --watch src src/index.ts",
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {

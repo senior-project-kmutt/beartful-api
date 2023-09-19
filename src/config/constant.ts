@@ -3,6 +3,6 @@ export const config = {
     port: process.env.PORT || 3006,
     hostname: process.env.HOSTNAME || 'localhost',
     mongodb: {
-        uri: process.env.MONGO_URI || 'mongodb://localhost/beartful-db'
+        uri: 'mongodb+srv://beartful:5P6Jgx5UfSt6zkmm@beartful-db.xo9cguc.mongodb.net/beartful'
     }
 }
