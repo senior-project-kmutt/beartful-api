@@ -1,15 +1,19 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { ICreditCardPayment } from "../models/payment";
+// const omise = require("omise")({
+//     publicKey: process.env.OMISE_PUBLIC_KEY,
+//     secretKey: process.env.OMISE_SECRET_KEY
+//   });
 
 const omise = require("omise")({
-    publicKey: process.env.OMISE_PUBLIC_KEY,
-    secretKey: process.env.OMISE_SECRET_KEY
-  });
+  publicKey: "pkey_test_5x1jqlva0xb31kk0ubw",
+  secretKey: "skey_test_5x1jr0hpfmne5jj68on"
+});
 
 export default async function checkoutController(fastify: FastifyInstance) {
   
     // POST /api/checkout
-    fastify.post("/creditCard", async function (
+    fastify.post("/", async function (
       request: FastifyRequest,
       reply: FastifyReply
     ) {
@@ -38,3 +42,4 @@ export default async function checkoutController(fastify: FastifyInstance) {
           }
     });
   }
+  
