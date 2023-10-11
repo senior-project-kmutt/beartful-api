@@ -7,7 +7,7 @@ const omise = require("omise")({
 });
 
 export default async function accountController(fastify: FastifyInstance) {
-    // POST /api/freelance/account
+    // POST /api/freelance
     fastify.post("/recipient", async function (
         request: FastifyRequest,
         reply: FastifyReply
@@ -28,7 +28,7 @@ export default async function accountController(fastify: FastifyInstance) {
             console.log(err);
         }
     });
-    // GET /api/freelance/account
+    // GET /api/freelance
     fastify.get("/recipient/:id", async function (
         request: FastifyRequest,
         reply: FastifyReply
