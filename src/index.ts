@@ -1,6 +1,7 @@
 import app from "./app";
 import { config } from "./config/constant"
 import mongoose, { ConnectOptions } from "mongoose";
+const fastify = require('fastify')();
 
 const startApp = async () => {
     try {

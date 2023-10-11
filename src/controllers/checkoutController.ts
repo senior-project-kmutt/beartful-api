@@ -11,9 +11,8 @@ const omise = require("omise")({
 });
 
 export default async function checkoutController(fastify: FastifyInstance) {
-  
     // POST /api/checkout
-    fastify.post("/", async function (
+    fastify.post("/credit-card", async function (
       request: FastifyRequest,
       reply: FastifyReply
     ) {
