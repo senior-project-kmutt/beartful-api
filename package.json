@@ -12,7 +12,8 @@
   "dependencies": {
     "@fastify/cors": "^8.3.0",
     "fastify": "^4.23.2",
-    "mongoose": "^5.13.20"
+    "mongoose": "^5.13.20",
+    "omise": "^0.11.0"
   },
   "devDependencies": {
     "@types/node": "^20.6.1",
