@@ -1,6 +1,8 @@
+import { IChatMessages } from './models/chatMessages/index';
 import app from "./app";
 import { config } from "./config/constant";
 import mongoose, { ConnectOptions } from "mongoose";
+
 
 const startApp = async () => {
   try {
@@ -16,6 +18,33 @@ const startApp = async () => {
   }
 };
 
+app.ready((err) => {
+  if (err) throw err;
+  app.io.on("connection", (socket: any) => {
+      onlineUsers.push(socket.id)
+      console.info("Socket connected!", socket.id)
+
+      socket.on("add-user", (userId: number) => {
+          console.log(userId, "userId"); //ได้ userId มาไม่ตรงกับที่ส่งมาจาก front
+          alluser.set(userId, socket.id)
+          console.log(alluser);
+      });
+
+      socket.on("send-message", (message: IChatMessages, to: number)=>{
+          const sentTo = alluser.get(to)
+          // socket.to(sentTo).emit("recieved_message", message)
+
+          //ถ้าส่งให้ client อื่นต้องระบุ socket id ไปด้วย
+          onlineUsers.forEach((user) => {
+              socket.to(user).emit("recieved_message", message)
+          })
+
+          //อันนี้ส่งกลับให้ตัวเอง
+          // socket.emit("recieved_message", message)
+      });
+  });
+});
+
 app.listen(config.port, "0.0.0.0");
 
 startApp();
@@ -24,3 +53,8 @@ startApp();
 console.log(
   `🚀  Fastify server running on port ${config.hostname}:${config.port}`
 );
+
+const onlineUsers: Array<string> = new Array();
+var alluser: Map<any, any> = new Map();
+
+
