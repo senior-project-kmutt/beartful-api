@@ -20,4 +20,5 @@ export const ErrorCode = {
     return new ErrorResponse("E001", `Username ${username} is already use`);
   },
   DuplicateEmail: new ErrorResponse("E001", "Duplicate email"),
+  InvalidUser: new ErrorResponse("E002", "Invalid username and password"),
 };

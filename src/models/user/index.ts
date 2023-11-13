@@ -1,9 +1,15 @@
 export interface IUsers {
+    _id: string;
     email: string;
     username: string;
     password: string;
     firstname: string;
     lastname: string;
+}
+
+export interface IUserLogin {
+    username: string;
+    password: string;
 }
 
 import mongoose from "mongoose"
