@@ -30,7 +30,7 @@ export default async function userController(fastify: FastifyInstance) {
       } catch (error) {
         const Error = error as { code?: string; message?: string };
         if (Error.code == "11000") {
-          return reply.send(ErrorCode.DuplicateUsername(username));
+          return reply.status(409).send(ErrorCode.DuplicateUsername(username));
         }
         return reply.status(500).send(ErrorCode.InternalServerError);
       }
