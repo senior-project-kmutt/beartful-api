@@ -19,4 +19,4 @@ const startApp = async () => {
 app.listen(config.port, config.hostname);
 startApp()
 
-console.log(`🚀  Fastify server running on port http://localhost:${config.port}`);
+console.log(`🚀  Fastify server running on port ${config.hostname}:${config.port}`);
