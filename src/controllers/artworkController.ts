@@ -7,6 +7,7 @@ export default async function artworkController(fastify: FastifyInstance) {
         request: FastifyRequest,
         reply: FastifyReply
     ) {
+        console.log("get artwork");
         const artworks = await getArtwork()
         reply.send(artworks);
     });
