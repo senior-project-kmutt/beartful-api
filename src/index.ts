@@ -16,7 +16,7 @@ const startApp = async () => {
     }
 }
 
-app.listen(config.port, config.hostname);
+app.listen(config.port, '0.0.0.0');
 startApp()
 
 console.log(`🚀  Fastify server running on port ${config.hostname}:${config.port}`);
