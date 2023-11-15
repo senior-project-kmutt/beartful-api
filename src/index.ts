@@ -1,33 +1,26 @@
-// import app from "./app";
-import { config } from "./config/constant"
+import app from "./app";
+import { config } from "./config/constant";
 import mongoose, { ConnectOptions } from "mongoose";
-import fastify from "fastify";
-
-const server = fastify({
-    // Logger only for production
-    logger: true,
-  });
-
-  server.get('/', async () => {
-    console.log("hello world");
-    return { hello: "world" }
-  });
 
 const startApp = async () => {
-    try {
-        const options: ConnectOptions = {
-            useNewUrlParser: true,
-            useCreateIndex: true,
-            useUnifiedTopology: true,
-        };
-        await mongoose.connect(config.mongodb.uri, options);
-        console.log("MongoDB connected successfully");
-    } catch (err) {
-        console.error("MongoDB connection error:", err);
-    }
-}
+  try {
+    const options: ConnectOptions = {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true,
+    };
+    await mongoose.connect(config.mongodb.uri, options);
+    console.log("MongoDB connected successfully");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+  }
+};
 
-server.listen(config.port, '0.0.0.0');
-startApp()
+app.listen(config.port, "0.0.0.0");
 
-console.log(`🚀  Fastify server running on port ${config.hostname}:${config.port}`);
+startApp();
+
+
+console.log(
+  `🚀  Fastify server running on port ${config.hostname}:${config.port}`
+);

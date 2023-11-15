@@ -8,6 +8,10 @@ const server = fastify({
 
 // Middleware: Router
 server.register(router);
+server.get("/", async () => {
+  console.log("hello world");
+  return { hello: "world" };
+});
 
 
 export default server;
