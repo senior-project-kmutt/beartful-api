@@ -8,10 +8,10 @@ const server = fastify({
     logger: true,
   });
 
-//   fastify.get('/',async () => {
-//     console.log("hello world");
-//     return { hello: "world"}
-//   })
+  server.get('/', async () => {
+    console.log("hello world");
+    return { hello: "world" }
+  });
 
 const startApp = async () => {
     try {
