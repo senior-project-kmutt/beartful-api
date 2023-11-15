@@ -8,7 +8,7 @@ const server = fastify({
 
 // Middleware: Router
 server.register(router);
-server.get("/", async () => {
+server.get("/api", async () => {
   console.log("hello world");
   return { hello: "world" };
 });
