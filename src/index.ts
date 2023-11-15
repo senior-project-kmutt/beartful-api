@@ -1,6 +1,17 @@
-import app from "./app";
+// import app from "./app";
 import { config } from "./config/constant"
 import mongoose, { ConnectOptions } from "mongoose";
+import fastify from "fastify";
+
+const server = fastify({
+    // Logger only for production
+    logger: true,
+  });
+
+//   fastify.get('/',async () => {
+//     console.log("hello world");
+//     return { hello: "world"}
+//   })
 
 const startApp = async () => {
     try {
@@ -16,7 +27,7 @@ const startApp = async () => {
     }
 }
 
-app.listen(config.port);
+server.listen(config.port, '0.0.0.0');
 startApp()
 
 console.log(`🚀  Fastify server running on port ${config.hostname}:${config.port}`);
