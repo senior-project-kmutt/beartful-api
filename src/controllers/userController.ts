@@ -53,8 +53,8 @@ export default async function userController(fastify: FastifyInstance) {
       }
       console.log(password);
       console.log(user.password);
-      console.log(await bcrypt.compare(password, user.password));
-      if (await bcrypt.compareSync(password, user.password)) {
+      console.log(password === user.password);
+      if (password === user.password) {
         const token = jwt.sign(
           {
             id: user._id,
