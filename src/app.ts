@@ -9,4 +9,5 @@ const server = fastify({
 // Middleware: Router
 server.register(router);
 
+
 export default server;
