@@ -18,6 +18,8 @@ const startApp = async () => {
   }
 };
 
+const onlineUsers: Array<string> = new Array();
+var alluser: Map<any, any> = new Map();
 app.ready((err) => {
   if (err) throw err;
   app.io.on("connection", (socket: any) => {
@@ -53,8 +55,3 @@ startApp();
 console.log(
   `🚀  Fastify server running on port ${config.hostname}:${config.port}`
 );
-
-const onlineUsers: Array<string> = new Array();
-var alluser: Map<any, any> = new Map();
-
-
