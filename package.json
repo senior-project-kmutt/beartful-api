@@ -16,7 +16,8 @@
     "fastify": "^4.23.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^5.13.20",
-    "omise": "^0.11.0"
+    "omise": "^0.11.0",
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
