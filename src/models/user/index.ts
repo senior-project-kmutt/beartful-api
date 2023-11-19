@@ -5,6 +5,8 @@ export interface IUsers {
     password: string;
     firstname: string;
     lastname: string;
+    profile_image: string;
+    role: string
 }
 
 export interface IUserLogin {
@@ -33,6 +35,14 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     lastname: {
+        type: String,
+        required: true
+    },
+    profile_image: {
+        type: String,
+        required: true
+    },
+    role: {
         type: String,
         required: true
     },
