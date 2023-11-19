@@ -44,7 +44,7 @@ const chatRoomSchema = new mongoose.Schema(
     },
   },
   {
-    collection: "chatRoom",
+    collection: "chat_room",
     timestamps: true,
     versionKey: false,
   }

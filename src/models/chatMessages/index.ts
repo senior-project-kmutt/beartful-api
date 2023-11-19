@@ -30,4 +30,4 @@ const chatMessagesSchema = new mongoose.Schema({
     versionKey: false
 })
 
-export const ChatMessages = mongoose.model('Chat_Messages', chatMessagesSchema)
+export const ChatMessages = mongoose.model('ChatMessages', chatMessagesSchema)
