@@ -1,28 +1,53 @@
 export interface IChatRoom {
-    chat_room_id: number;
-    paticipants: IParticipant;
+  _id: string;
+  chatRoomId: number;
+  paticipants: IParticipant[];
 }
 
 interface IParticipant {
-    userId: number;
-    username: string;
-    role: string;
+  userId: string;
+  username: string;
+  role: string;
 }
 
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const chatRoomSchema = new mongoose.Schema({
-    chat_room_id: {
-        type: Number,
-        required: true
+const participantSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+const chatRoomSchema = new mongoose.Schema(
+  {
+    chatRoomId: {
+      type: Number,
+      required: true,
     },
     participants: {
-        type: Array,
-        required: true
-    }
-}, {
+      type: [participantSchema],
+      required: true,
+    },
+  },
+  {
+    collection: "chatRoom",
     timestamps: true,
-    versionKey: false
-})
+    versionKey: false,
+  }
+);
 
-export const ChatRoom = mongoose.model('chat_room', chatRoomSchema)
+export const ChatRoom = mongoose.model("ChatRoom", chatRoomSchema);
