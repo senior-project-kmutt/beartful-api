@@ -57,7 +57,7 @@ export default async function userController(fastify: FastifyInstance) {
         username: user.username,
         firstname: user.firstname,
         lastname: user.lastname,
-        profile: user.profile_image,
+        profile_image: user.profile_image,
         role: user.role
       }
 
