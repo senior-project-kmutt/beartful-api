@@ -7,6 +7,7 @@ export interface IChatRoom {
 interface IParticipant {
   userId: string;
   username: string;
+  profile_image: string;
   role: string;
 }
 
