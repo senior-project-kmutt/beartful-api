@@ -49,22 +49,27 @@ export default async function userController(fastify: FastifyInstance) {
       const { username, password } = body;
       const user: IUsers = await Users.findOne({ username }).lean();
       if (!user) {
-        return reply.status(409).send(ErrorCode.InvalidUser);
+        return reply.status(401).send(ErrorCode.InvalidUser);
       }
-      console.log(password);
-      console.log(user.password);
-      console.log(await bcrypt.compare(password, user.password));
-      if (await bcrypt.compareSync(password, user.password)) {
+
+      const userForSign = {
+        id: user._id,
+        username: user.username,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        profile: user.profile_image,
+        role: user.role
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password)
+      if (isMatch) {
         const token = jwt.sign(
-          {
-            id: user._id,
-            username: user.username,
-            firstname: user.firstname,
-            lastname: user.lastname,
-          },
+          userForSign,
           SECRET_KEY
         );
-        return reply.status(200).send({ token: token });
+        return reply.status(200).send({ token: token, user: userForSign });
+      } else {
+        return reply.status(401).send(ErrorCode.InvalidUser);
       }
     }
   );
