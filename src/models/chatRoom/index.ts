@@ -1,37 +1,17 @@
 export interface IChatRoom {
   _id: string;
   chatRoomId: number;
-  paticipants: IParticipant[];
+  participants: string[] | IParticipant[];
 }
 
-interface IParticipant {
-  userId: string;
+export interface IParticipant {
+  user_id: string;
   username: string;
   profile_image: string;
   role: string;
 }
 
 import mongoose from "mongoose";
-
-const participantSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: String,
-      required: true,
-    },
-    username: {
-      type: String,
-      required: true,
-    },
-    role: {
-      type: String,
-      required: true,
-    },
-  },
-  {
-    _id: false,
-  }
-);
 
 const chatRoomSchema = new mongoose.Schema(
   {
@@ -40,7 +20,7 @@ const chatRoomSchema = new mongoose.Schema(
       required: true,
     },
     participants: {
-      type: [participantSchema],
+      type: Array,
       required: true,
     },
   },
