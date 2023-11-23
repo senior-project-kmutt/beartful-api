@@ -3,7 +3,7 @@ import { IUsers, Users } from "../models/user";
 import { ChatMessages, IChatMessages } from "../models/chatMessages";
 
 interface GetMessagesByChatRoomRequest {
-  chatRoomId: number
+  chatRoomId: string
 }
 
 export default async function chatMessagesController(fastify: FastifyInstance) {
@@ -47,7 +47,7 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
     return chatMessgaes
   }
 
-  const getMessagesByChatRoom = async (chatRoomId: number) => {
+  const getMessagesByChatRoom = async (chatRoomId: string) => {
     const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId)
     return chatMessgaes
   }
