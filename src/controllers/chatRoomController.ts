@@ -44,8 +44,11 @@ export default async function chatRoomController(fastify: FastifyInstance) {
               const transformUser = {
                 user_id: userId,
                 username: user.username,
+                firstname: user.firstname,
+                lastname: user.lastname,
                 role: user.role,
-                profile_image: user.profile_image
+                profile_image: user.profile_image,
+                createdAt: user.createdAt
               } as IParticipant;
               return transformUser;
             }));
@@ -81,8 +84,11 @@ export default async function chatRoomController(fastify: FastifyInstance) {
     const user = await Users.find({ _id: userId }, {
       _id: 0,
       username: 1,
+      firstname: 1,
+      lastname: 1,
       profile_image: 1,
-      role: 1
+      role: 1,
+      createdAt: 1
     });
     return user[0];
   };

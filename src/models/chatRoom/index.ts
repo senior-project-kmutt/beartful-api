@@ -7,8 +7,11 @@ export interface IChatRoom {
 export interface IParticipant {
   user_id: string;
   username: string;
+  firstname: string;
+  lastname: string;
   profile_image: string;
   role: string;
+  createdAt: string
 }
 
 import mongoose from "mongoose";
