@@ -48,7 +48,7 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
   }
 
   const getMessagesByChatRoom = async (chatRoomId: string) => {
-    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId)
+    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({createdAt: 'asc'})
     return chatMessgaes
   }
 }
