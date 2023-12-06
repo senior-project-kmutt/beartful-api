@@ -3,7 +3,7 @@ import { IUsers, Users } from "../models/user";
 import { ChatMessages, IChatMessages } from "../models/chatMessages";
 
 interface GetMessagesByChatRoomRequest {
-  chatRoomId: number
+  chatRoomId: string
 }
 
 export default async function chatMessagesController(fastify: FastifyInstance) {
@@ -24,6 +24,16 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
     const chatRoomId = req.chatRoomId
     const allMessage = await getMessagesByChatRoom(chatRoomId)
     reply.send(allMessage);
+  });
+
+  fastify.get("/latest/:chatRoomId", async function (
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const req = request.params as GetMessagesByChatRoomRequest
+    const chatRoomId = req.chatRoomId
+    const latestMessage = await getLastMessagesByChatRoom(chatRoomId)
+    reply.send(latestMessage);
   });
 
   fastify.post("/", async function (
@@ -47,8 +57,13 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
     return chatMessgaes
   }
 
-  const getMessagesByChatRoom = async (chatRoomId: number) => {
-    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId)
+  const getMessagesByChatRoom = async (chatRoomId: string) => {
+    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({createdAt: 'asc'})
     return chatMessgaes
+  }
+
+  const getLastMessagesByChatRoom = async (chatRoomId: string) => {
+    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({createdAt: 'desc'})
+    return chatMessgaes[0]
   }
 }
