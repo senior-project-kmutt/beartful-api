@@ -1,8 +1,7 @@
 export interface IChatMessages {
-    chat_room_id: number;
-    sender: IParticipant;
+    chat_room_id: string;
+    sender: string;
     message: string;
-    time: Date;
 }
 
 interface IParticipant {
@@ -14,11 +13,11 @@ import mongoose from "mongoose"
 
 const chatMessagesSchema = new mongoose.Schema({
     chat_room_id: {
-        type: Number,
+        type: String,
         required: true
     },
     sender: {
-        type: Object,
+        type: String,
         required: true
     },
     message: {
@@ -26,8 +25,9 @@ const chatMessagesSchema = new mongoose.Schema({
         required: true
     }
 }, {
+    collection: 'chat_messages',
     timestamps: true,
     versionKey: false
 })
 
-export const ChatMessages = mongoose.model('Chat_Messages', chatMessagesSchema)
+export const ChatMessages = mongoose.model('ChatMessages', chatMessagesSchema)

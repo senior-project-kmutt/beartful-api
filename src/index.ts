@@ -42,7 +42,7 @@ app.ready((err) => {
           })
 
           //อันนี้ส่งกลับให้ตัวเอง
-          // socket.emit("recieved_message", message)
+          socket.emit("recieved_message", message)
       });
   });
 });
