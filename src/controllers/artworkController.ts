@@ -15,13 +15,20 @@ export default async function artworkController(fastify: FastifyInstance) {
     }
   );
 
-  const getArtwork = async (page?: string, pageSize?: string, type?:string) => {
+  const getArtwork = async (page?: string, pageSize?: string, type?: string) => {
     const pages = page ? parseInt(page) : 1;
-    const pageSizes = pageSize ? parseInt(pageSize) : 30;
-    const skip = (pages - 1) * pageSizes;
+    const pageSizes = pageSize ? parseInt(pageSize) : 0;
 
     try {
-      const artworks = await Artworks.find({ type: type}).skip(skip).limit(pageSizes).exec();
+      let query = {};
+      if (type) {
+        query = { type: type }
+      }
+      const artworksQuery = pageSizes > 0
+        ? Artworks.find(query).skip((pages - 1) * pageSizes).limit(pageSizes)
+        : Artworks.find(query);
+
+      const artworks = await artworksQuery.exec();
       const shuffledArtworks = artworks.sort(() => Math.random() - 0.5);
       return shuffledArtworks;
     } catch (error) {
