@@ -54,6 +54,7 @@ export default async function userController(fastify: FastifyInstance) {
 
       const userForSign = {
         id: user._id,
+        email: user.email,
         username: user.username,
         firstname: user.firstname,
         lastname: user.lastname,
