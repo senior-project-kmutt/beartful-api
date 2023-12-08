@@ -2,9 +2,14 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { IUserLogin, IUsers, Users } from "../models/user";
 import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
+
+  interface IParamsGetChatRoom {
+    userId: string;
+  }
 
 export default async function userController(fastify: FastifyInstance) {
   // GET /api/v1/user
@@ -37,6 +42,46 @@ export default async function userController(fastify: FastifyInstance) {
           return reply.status(409).send(ErrorCode.DuplicateUsername(username));
         }
         return reply.status(500).send(ErrorCode.InternalServerError);
+      }
+    }
+  );
+
+  fastify.get(
+    "/:userId/chatRooms",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const params = request.params as IParamsGetChatRoom;
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized)
+        }
+        const chatRooms: IChatRoom[] = await getChatRoomByUserId(params.userId);
+        await Promise.all(
+          chatRooms.map(async (chatRoom) => {
+            const tranform: any = await Promise.all(chatRoom.participants.map(async (userId) => {
+              const user = await getUserById(userId as string);
+              const transformUser = {
+                user_id: userId,
+                username: user.username,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                role: user.role,
+                profile_image: user.profile_image,
+                createdAt: user.createdAt
+              } as IParticipant;
+              return transformUser;
+            }));
+            const newChatRoom = chatRoom
+            newChatRoom.participants = tranform
+            return newChatRoom
+          })
+        )
+        return reply.status(200).send(chatRooms);
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
       }
     }
   );
@@ -78,5 +123,23 @@ export default async function userController(fastify: FastifyInstance) {
   const getUser = async () => {
     const users = await Users.find().lean();
     return users;
+  };
+
+  const getUserById = async (userId: string) => {
+    const user = await Users.find({ _id: userId }, {
+      _id: 0,
+      username: 1,
+      firstname: 1,
+      lastname: 1,
+      profile_image: 1,
+      role: 1,
+      createdAt: 1
+    });
+    return user[0];
+  };
+
+  const getChatRoomByUserId = async (userId: string): Promise<IChatRoom[]> => {
+    const chatRoom = await ChatRoom.find({ 'participants': userId });
+    return chatRoom;
   };
 }

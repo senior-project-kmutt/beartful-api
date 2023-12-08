@@ -1,17 +1,13 @@
-import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
+import { ChatRoom } from "../models/chatRoom";
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { Users } from "../models/user";
+import { ChatMessages } from "../models/chatMessages";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
 interface GetMessagesByChatRoomRequest {
-  chatRoomId: number;
-}
-
-interface IParamsGetChatRoom {
-  userId: string;
+  chatRoomId: string
 }
 
 export default async function chatRoomController(fastify: FastifyInstance) {
@@ -24,45 +20,50 @@ export default async function chatRoomController(fastify: FastifyInstance) {
     }
   );
 
-  fastify.get(
-    "/:userId",
-    async function (request: FastifyRequest, reply: FastifyReply) {
-      const auth = request.headers.authorization;
-      const params = request.params as IParamsGetChatRoom;
-      if (auth) {
+  fastify.get("/:chatRoomId/messages", async function (
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const auth = request.headers.authorization;
+    if (auth) {
+      try {
         const token = auth.split("Bearer ")[1];
-        try {
-          jwt.verify(token, SECRET_KEY) as JwtPayload;
-        } catch (error) {
-          reply.status(401).send(ErrorCode.Unauthorized)
-        }
-        const chatRooms: IChatRoom[] = await getChatRoomByUserId(params.userId);
-        await Promise.all(
-          chatRooms.map(async (chatRoom) => {
-            const tranform: any = await Promise.all(chatRoom.participants.map(async (userId) => {
-              const user = await getUserById(userId as string);
-              const transformUser = {
-                user_id: userId,
-                username: user.username,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                role: user.role,
-                profile_image: user.profile_image,
-                createdAt: user.createdAt
-              } as IParticipant;
-              return transformUser;
-            }));
-            const newChatRoom = chatRoom
-            newChatRoom.participants = tranform
-            return newChatRoom
-          })
-        )
-        return reply.status(200).send(chatRooms);
-      } else {
-        return reply.status(401).send(ErrorCode.Unauthorized);
+        jwt.verify(token, SECRET_KEY) as JwtPayload;
+      } catch (error) {
+        reply.status(401).send(ErrorCode.Unauthorized)
       }
+      const req = request.params as GetMessagesByChatRoomRequest
+      const chatRoomId = req.chatRoomId
+      const allMessage = await getMessagesByChatRoom(chatRoomId)
+      reply.send(allMessage);
+    } else {
+      return reply.status(401).send(ErrorCode.Unauthorized);
     }
-  );
+  });
+
+  fastify.get("/:chatRoomId/latestMessage", async function (
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const auth = request.headers.authorization;
+    if (auth) {
+      try {
+        const token = auth.split("Bearer ")[1];
+        jwt.verify(token, SECRET_KEY) as JwtPayload;
+      } catch (error) {
+        reply.status(401).send(ErrorCode.Unauthorized)
+      }
+      const req = request.params as GetMessagesByChatRoomRequest
+      const chatRoomId = req.chatRoomId
+      const latestMessage = await getLastMessagesByChatRoom(chatRoomId)
+      reply.send(latestMessage);
+
+    } else {
+      return reply.status(401).send(ErrorCode.Unauthorized);
+    }
+
+  });
+
 
   const getAllChatRoom = async () => {
     try {
@@ -75,21 +76,13 @@ export default async function chatRoomController(fastify: FastifyInstance) {
     }
   };
 
-  const getChatRoomByUserId = async (userId: string): Promise<IChatRoom[]> => {
-    const chatRoom = await ChatRoom.find({ 'participants': userId });
-    return chatRoom;
-  };
+  const getMessagesByChatRoom = async (chatRoomId: string) => {
+    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({ createdAt: 'asc' })
+    return chatMessgaes
+  }
 
-  const getUserById = async (userId: string) => {
-    const user = await Users.find({ _id: userId }, {
-      _id: 0,
-      username: 1,
-      firstname: 1,
-      lastname: 1,
-      profile_image: 1,
-      role: 1,
-      createdAt: 1
-    });
-    return user[0];
-  };
+  const getLastMessagesByChatRoom = async (chatRoomId: string) => {
+    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({ createdAt: 'desc' })
+    return chatMessgaes[0]
+  }
 }
