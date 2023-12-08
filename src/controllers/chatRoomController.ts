@@ -1,8 +1,7 @@
-import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
+import { ChatRoom } from "../models/chatRoom";
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { Users } from "../models/user";
 import { ChatMessages } from "../models/chatMessages";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
