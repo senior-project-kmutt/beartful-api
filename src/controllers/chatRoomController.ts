@@ -27,8 +27,8 @@ export default async function chatRoomController(fastify: FastifyInstance) {
   ) {
     const auth = request.headers.authorization;
     if (auth) {
-      const token = auth.split("Bearer ")[1];
       try {
+        const token = auth.split("Bearer ")[1];
         jwt.verify(token, SECRET_KEY) as JwtPayload;
       } catch (error) {
         reply.status(401).send(ErrorCode.Unauthorized)
@@ -41,6 +41,30 @@ export default async function chatRoomController(fastify: FastifyInstance) {
       return reply.status(401).send(ErrorCode.Unauthorized);
     }
   });
+
+  fastify.get("/:chatRoomId/latestMessage", async function (
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const auth = request.headers.authorization;
+    if (auth) {
+      try {
+        const token = auth.split("Bearer ")[1];
+        jwt.verify(token, SECRET_KEY) as JwtPayload;
+      } catch (error) {
+        reply.status(401).send(ErrorCode.Unauthorized)
+      }
+      const req = request.params as GetMessagesByChatRoomRequest
+      const chatRoomId = req.chatRoomId
+      const latestMessage = await getLastMessagesByChatRoom(chatRoomId)
+      reply.send(latestMessage);
+
+    } else {
+      return reply.status(401).send(ErrorCode.Unauthorized);
+    }
+
+  });
+
 
   const getAllChatRoom = async () => {
     try {
@@ -56,5 +80,10 @@ export default async function chatRoomController(fastify: FastifyInstance) {
   const getMessagesByChatRoom = async (chatRoomId: string) => {
     const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({ createdAt: 'asc' })
     return chatMessgaes
+  }
+
+  const getLastMessagesByChatRoom = async (chatRoomId: string) => {
+    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({ createdAt: 'desc' })
+    return chatMessgaes[0]
   }
 }

@@ -15,16 +15,6 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
     reply.send(allMessage);
   });
 
-  fastify.get("/latest/:chatRoomId", async function (
-    request: FastifyRequest,
-    reply: FastifyReply
-  ) {
-    const req = request.params as GetMessagesByChatRoomRequest
-    const chatRoomId = req.chatRoomId
-    const latestMessage = await getLastMessagesByChatRoom(chatRoomId)
-    reply.send(latestMessage);
-  });
-
   fastify.post("/", async function (
     request: FastifyRequest,
     reply: FastifyReply
@@ -44,10 +34,5 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
   const getAllMessages = async () => {
     const chatMessgaes = await ChatMessages.find().lean()
     return chatMessgaes
-  }
-
-  const getLastMessagesByChatRoom = async (chatRoomId: string) => {
-    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({createdAt: 'desc'})
-    return chatMessgaes[0]
   }
 }
