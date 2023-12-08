@@ -1,5 +1,4 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { IUsers, Users } from "../models/user";
 import { ChatMessages, IChatMessages } from "../models/chatMessages";
 
 interface GetMessagesByChatRoomRequest {
@@ -13,16 +12,6 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
     reply: FastifyReply
   ) {
     const allMessage = await getAllMessages()
-    reply.send(allMessage);
-  });
-
-  fastify.get("/:chatRoomId", async function (
-    request: FastifyRequest,
-    reply: FastifyReply
-  ) {
-    const req = request.params as GetMessagesByChatRoomRequest
-    const chatRoomId = req.chatRoomId
-    const allMessage = await getMessagesByChatRoom(chatRoomId)
     reply.send(allMessage);
   });
 
@@ -54,11 +43,6 @@ export default async function chatMessagesController(fastify: FastifyInstance) {
 
   const getAllMessages = async () => {
     const chatMessgaes = await ChatMessages.find().lean()
-    return chatMessgaes
-  }
-
-  const getMessagesByChatRoom = async (chatRoomId: string) => {
-    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({createdAt: 'asc'})
     return chatMessgaes
   }
 
