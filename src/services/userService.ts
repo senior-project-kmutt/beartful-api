@@ -1,4 +1,4 @@
-import { Users } from "../models/user";
+import { IUsers, Users } from "../models/user";
 import { ChatRoom, IChatRoom } from "../models/chatRoom";
 
 export const getUser = async () => {
@@ -22,4 +22,17 @@ export const getUserById = async (userId: string) => {
 export const getChatRoomByUserId = async (userId: string): Promise<IChatRoom[]> => {
   const chatRoom = await ChatRoom.find({ 'participants': userId });
   return chatRoom;
+};
+
+export const transformUserForSign = async (user: IUsers) => {
+  const userForSign = {
+    id: user._id,
+    email: user.email,
+    username: user.username,
+    firstname: user.firstname,
+    lastname: user.lastname,
+    profile_image: user.profile_image,
+    role: user.role
+  }
+  return userForSign;
 };

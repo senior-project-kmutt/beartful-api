@@ -4,7 +4,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom, IParticipant } from "../models/chatRoom";
-import { getChatRoomByUserId, getUser, getUserById } from "../services/userService";
+import { getChatRoomByUserId, getUser, getUserById, transformUserForSign } from "../services/userService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -98,16 +98,7 @@ export default async function userController(fastify: FastifyInstance) {
         return reply.status(401).send(ErrorCode.InvalidUser);
       }
 
-      const userForSign = {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        profile_image: user.profile_image,
-        role: user.role
-      }
-
+      const userForSign = await transformUserForSign(user);
       const isMatch = await bcrypt.compare(password, user.password)
       if (isMatch) {
         const token = jwt.sign(
