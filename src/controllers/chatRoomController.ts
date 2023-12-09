@@ -1,8 +1,7 @@
-import { ChatRoom } from "../models/chatRoom";
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { ChatMessages } from "../models/chatMessages";
+import { getAllChatRoom, getLastMessagesByChatRoom, getMessagesByChatRoom } from "../services/chatRoomService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -61,28 +60,5 @@ export default async function chatRoomController(fastify: FastifyInstance) {
     } else {
       return reply.status(401).send(ErrorCode.Unauthorized);
     }
-
   });
-
-
-  const getAllChatRoom = async () => {
-    try {
-      const chatRooms = await ChatRoom.find();
-      console.log("Chat Rooms:", chatRooms);
-      return chatRooms;
-    } catch (error) {
-      console.error("Error fetching chat rooms:", error);
-      throw error;
-    }
-  };
-
-  const getMessagesByChatRoom = async (chatRoomId: string) => {
-    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({ createdAt: 'asc' })
-    return chatMessgaes
-  }
-
-  const getLastMessagesByChatRoom = async (chatRoomId: string) => {
-    const chatMessgaes = await ChatMessages.find().where("chat_room_id").equals(chatRoomId).sort({ createdAt: 'desc' })
-    return chatMessgaes[0]
-  }
 }
