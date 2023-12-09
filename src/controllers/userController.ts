@@ -3,7 +3,8 @@ import { IUserLogin, IUsers, Users } from "../models/user";
 import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
+import { IChatRoom, IParticipant } from "../models/chatRoom";
+import { getChatRoomByUserId, getUser, getUserById } from "../services/userService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -119,27 +120,4 @@ export default async function userController(fastify: FastifyInstance) {
       }
     }
   );
-
-  const getUser = async () => {
-    const users = await Users.find().lean();
-    return users;
-  };
-
-  const getUserById = async (userId: string) => {
-    const user = await Users.find({ _id: userId }, {
-      _id: 0,
-      username: 1,
-      firstname: 1,
-      lastname: 1,
-      profile_image: 1,
-      role: 1,
-      createdAt: 1
-    });
-    return user[0];
-  };
-
-  const getChatRoomByUserId = async (userId: string): Promise<IChatRoom[]> => {
-    const chatRoom = await ChatRoom.find({ 'participants': userId });
-    return chatRoom;
-  };
 }
