@@ -3,7 +3,7 @@ import { IUserLogin, IUsers, Users } from "../models/user";
 import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { IChatRoom, IParticipant } from "../models/chatRoom";
+import { IChatRoom } from "../models/chatRoom";
 import { getChatRoomByUserId, getUser, getUserById, transformUserForSign } from "../services/userService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
@@ -60,26 +60,6 @@ export default async function userController(fastify: FastifyInstance) {
           reply.status(401).send(ErrorCode.Unauthorized)
         }
         const chatRooms: IChatRoom[] = await getChatRoomByUserId(params.userId);
-        await Promise.all(
-          chatRooms.map(async (chatRoom) => {
-            const tranform: any = await Promise.all(chatRoom.participants.map(async (userId) => {
-              const user = await getUserById(userId as string);
-              const transformUser = {
-                user_id: userId,
-                username: user.username,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                role: user.role,
-                profile_image: user.profile_image,
-                createdAt: user.createdAt
-              } as IParticipant;
-              return transformUser;
-            }));
-            const newChatRoom = chatRoom
-            newChatRoom.participants = tranform
-            return newChatRoom
-          })
-        )
         return reply.status(200).send(chatRooms);
       } else {
         return reply.status(401).send(ErrorCode.Unauthorized);
