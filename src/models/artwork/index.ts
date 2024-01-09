@@ -15,7 +15,7 @@ import mongoose from "mongoose"
 
 const artworkSchema = new mongoose.Schema({
     freelanceId: {
-        type: Number,
+        type: String,
         required: true
     },
     images: {
