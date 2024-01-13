@@ -1,5 +1,7 @@
-import { IUsers, Users } from "../models/user";
+import { IUserCustomer, IUsers, Users } from "../models/user";
 import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
+import { ErrorCode, ErrorResponse } from "../response/errorResponse";
+import { FastifyReply } from "fastify";
 
 export const getUser = async () => {
   const users = await Users.find().lean();
@@ -56,3 +58,40 @@ export const transformUserForSign = async (user: IUsers) => {
   }
   return userForSign;
 };
+
+export const insertUser = async (user: any, reply: FastifyReply) => {
+  try {
+    if (user.role === "customer") {
+      const validationResult = await validateCustomerField(user);
+      if (validationResult) {
+        return reply.status(400).send(validationResult);
+      }
+      const response = await Users.create(user);
+      return response
+    }
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ErrorResponse) {
+      return reply.status(400).send(error);
+    }
+  }
+};
+
+const validateCustomerField = (request: any) => {
+  const requiredFields: Array<keyof IUserCustomer> = [
+    'email',
+    'username',
+    'password',
+    'firstname',
+    'lastname',
+    'profile_image',
+    'role',
+    'phoneNumber',
+    'dateOfBirth'
+  ];
+
+  const missingFields = requiredFields.filter(field => !request[field]);
+  if (missingFields.length > 0) {
+    return ErrorCode.MissingRequiredField(missingFields.join(', '))
+  }
+}

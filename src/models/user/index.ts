@@ -6,7 +6,12 @@ export interface IUsers {
     firstname: string;
     lastname: string;
     profile_image: string;
-    role: string
+    role: string;
+    phoneNumber: string;   
+}
+
+export interface IUserCustomer extends IUsers {
+    dateOfBirth: Date
 }
 
 export interface IUserLogin {
@@ -45,6 +50,14 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true
+    },
+    phoneNumber: {
+        type: String,
+        required: true
+    },
+    dateOfBirth: {
+        type: Date,
+        required: false
     },
 }, {
     timestamps: true,
