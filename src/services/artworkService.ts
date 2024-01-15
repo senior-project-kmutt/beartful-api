@@ -1,4 +1,4 @@
-import { Artworks } from "../models/artwork";
+import { Artworks, IArtworks } from "../models/artwork";
 
 export const getArtwork = async (page?: string, pageSize?: string, type?: string) => {
   const pages = page ? parseInt(page) : 1;
@@ -18,6 +18,16 @@ export const getArtwork = async (page?: string, pageSize?: string, type?: string
     return shuffledArtworks;
   } catch (error) {
     console.error("Error fetching artworks:", error);
+    throw error;
+  }
+};
+
+export const createArtwork = async (artwork: IArtworks) => {
+  try {
+    const response = await Artworks.create(artwork);
+    return response;
+  } catch (error) {
+    console.error("Error create artwork:", error);
     throw error;
   }
 };
