@@ -10,10 +10,6 @@ export interface IUsers {
     phoneNumber: string;   
 }
 
-export interface IUserCustomer extends IUsers {
-    dateOfBirth: Date
-}
-
 export interface IUserLogin {
     username: string;
     password: string;
@@ -54,11 +50,7 @@ const userSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: true
-    },
-    dateOfBirth: {
-        type: Date,
-        required: false
-    },
+    }
 }, {
     timestamps: true,
     versionKey: false

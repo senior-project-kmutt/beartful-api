@@ -1,4 +1,4 @@
-import { IUserCustomer, IUsers, Users } from "../models/user";
+import { IUsers, Users } from "../models/user";
 import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
 import { ErrorCode, ErrorResponse } from "../response/errorResponse";
 import { FastifyReply } from "fastify";
@@ -78,7 +78,7 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
 };
 
 const validateCustomerField = (request: any) => {
-  const requiredFields: Array<keyof IUserCustomer> = [
+  const requiredFields: Array<keyof IUsers> = [
     'email',
     'username',
     'password',
@@ -86,8 +86,7 @@ const validateCustomerField = (request: any) => {
     'lastname',
     'profile_image',
     'role',
-    'phoneNumber',
-    'dateOfBirth'
+    'phoneNumber'
   ];
 
   const missingFields = requiredFields.filter(field => !request[field]);
