@@ -5,7 +5,7 @@ export interface IUsers {
     password: string;
     firstname: string;
     lastname: string;
-    profile_image: string;
+    profileImage: string;
     role: string;
     phoneNumber: string;   
 }
@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    profile_image: {
+    profileImage: {
         type: String,
         required: true
     },

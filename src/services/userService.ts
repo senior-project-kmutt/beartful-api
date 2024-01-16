@@ -53,7 +53,7 @@ export const transformUserForSign = async (user: IUsers) => {
     username: user.username,
     firstname: user.firstname,
     lastname: user.lastname,
-    profile_image: user.profile_image,
+    profile_image: user.profileImage,
     role: user.role
   }
   return userForSign;
@@ -84,7 +84,7 @@ const validateCustomerField = (request: any) => {
     'password',
     'firstname',
     'lastname',
-    'profile_image',
+    'profileImage',
     'role',
     'phoneNumber'
   ];
