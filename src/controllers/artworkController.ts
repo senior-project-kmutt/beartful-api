@@ -1,11 +1,14 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { createArtwork, getArtwork } from "../services/artworkService";
+import { createArtwork, deleteArtwork, getArtwork } from "../services/artworkService";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
 import { IArtworkForm, IArtworks } from "../models/artwork";
-import { transformUserForSign } from "../services/userService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
+
+interface GetArtworkId {
+  artworkId: string
+}
 
 export default async function artworkController(fastify: FastifyInstance) {
   fastify.get(
@@ -49,4 +52,12 @@ export default async function artworkController(fastify: FastifyInstance) {
       return reply.status(401).send(ErrorCode.Unauthorized);
     }
   });
+
+  fastify.delete(
+    "/:artworkId",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const req = request.params as GetArtworkId
+      reply.send(await deleteArtwork(req.artworkId));
+    }
+  );
 }

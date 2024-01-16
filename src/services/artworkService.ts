@@ -31,3 +31,13 @@ export const createArtwork = async (artwork: IArtworks) => {
     throw error;
   }
 };
+
+export const deleteArtwork = async (artworkId: string) => {
+  try {
+    const response = await Artworks.deleteOne({ _id: artworkId });
+    return response;
+  } catch (error) {
+    console.error("Error delete artwork:", error);
+    throw error;
+  }
+};
