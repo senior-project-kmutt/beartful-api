@@ -9,7 +9,7 @@ export interface IParticipant {
   username: string;
   firstname: string;
   lastname: string;
-  profile_image: string;
+  profileImage: string;
   role: string;
   createdAt: string
 }

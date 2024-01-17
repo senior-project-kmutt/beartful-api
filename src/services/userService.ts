@@ -14,7 +14,7 @@ export const getUserById = async (userId: string) => {
     username: 1,
     firstname: 1,
     lastname: 1,
-    profile_image: 1,
+    profileImage: 1,
     role: 1,
     createdAt: 1
   });
@@ -33,7 +33,7 @@ export const getChatRoomByUserId = async (userId: string): Promise<IChatRoom[]> 
           firstname: user.firstname,
           lastname: user.lastname,
           role: user.role,
-          profile_image: user.profile_image,
+          profileImage: user.profileImage,
           createdAt: user.createdAt
         } as IParticipant;
         return transformUser;
@@ -53,7 +53,7 @@ export const transformUserForSign = async (user: IUsers) => {
     username: user.username,
     firstname: user.firstname,
     lastname: user.lastname,
-    profile_image: user.profileImage,
+    profileImage: user.profileImage,
     role: user.role
   }
   return userForSign;
