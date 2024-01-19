@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { createArtwork, deleteArtwork, getArtwork } from "../services/artworkService";
+import { createArtwork, deleteArtwork, getArtwork, getArtworkById } from "../services/artworkService";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
 import { IArtworkForm, IArtworks } from "../models/artwork";
@@ -21,6 +21,15 @@ export default async function artworkController(fastify: FastifyInstance) {
       };
       const artworks = await getArtwork(page, pageSize, type);
       reply.send(artworks);
+    }
+  );
+
+  fastify.get(
+    "/:artworkId",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const req = request.params as GetArtworkId
+      const artwork = await getArtworkById(req.artworkId);
+      reply.send(artwork);
     }
   );
 

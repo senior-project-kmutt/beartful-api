@@ -22,6 +22,16 @@ export const getArtwork = async (page?: string, pageSize?: string, type?: string
   }
 };
 
+export const getArtworkById = async (artworkId: string) => {
+  try {
+    const response = await Artworks.findOne({ _id: artworkId });
+    return response;
+  } catch (error) {
+    console.error("Error get artwork by Id:", error);
+    throw error;
+  }
+};
+
 export const createArtwork = async (artwork: IArtworks) => {
   try {
     const response = await Artworks.create(artwork);
