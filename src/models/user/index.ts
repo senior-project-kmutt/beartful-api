@@ -5,8 +5,9 @@ export interface IUsers {
     password: string;
     firstname: string;
     lastname: string;
-    profile_image: string;
-    role: string
+    profileImage: string;
+    role: string;
+    phoneNumber: string;   
 }
 
 export interface IUserLogin {
@@ -38,7 +39,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    profile_image: {
+    profileImage: {
         type: String,
         required: true
     },
@@ -46,6 +47,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    phoneNumber: {
+        type: String,
+        required: true
+    }
 }, {
     timestamps: true,
     versionKey: false
