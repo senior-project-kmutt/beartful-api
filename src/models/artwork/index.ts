@@ -11,9 +11,17 @@ export interface IArtworks {
     updatedAt?: Date
 }
 
-export interface IArtworkForm {
+export interface IArtworkAddForm {
     freelanceId: number
     images: Array<string>
+    name: string
+    description: string
+    price: string
+    type: string
+    categoryId: string[]
+}
+
+export interface IArtworkEditForm {
     name: string
     description: string
     price: string

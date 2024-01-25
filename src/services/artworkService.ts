@@ -1,4 +1,4 @@
-import { Artworks, IArtworks } from "../models/artwork";
+import { Artworks, IArtworkEditForm, IArtworks } from "../models/artwork";
 
 export const getArtwork = async (page?: string, pageSize?: string, type?: string) => {
   const pages = page ? parseInt(page) : 1;
@@ -51,3 +51,14 @@ export const deleteArtwork = async (artworkId: string) => {
     throw error;
   }
 };
+
+export const updateArtwork = async (artworkId: string, updateArtwork: IArtworkEditForm) => {
+  try {
+    const response = await Artworks.updateOne({ _id: artworkId }, { $set: updateArtwork });
+    return response;
+  } catch (error) {
+    console.error("Error edit artwork:", error);
+    throw error;
+  }
+};
+
