@@ -4,7 +4,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, getUserById, transformUserForSign } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, getUserById, insertUser, transformUserForSign } from "../services/userService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -27,20 +27,17 @@ export default async function userController(fastify: FastifyInstance) {
     "/register",
     async function (request: FastifyRequest, reply: FastifyReply) {
       const body: IUsers = request.body as IUsers;
-      const { email, username, password, firstname, lastname } = body;
+
       try {
-        const response = await Users.create({
-          email,
-          username,
-          password,
-          firstname,
-          lastname,
-        });
+        if (!body.role) {
+          return reply.status(400).send(ErrorCode.MissingRequiredField("role"))
+        }
+        const response = await insertUser(body, reply)
         reply.send(response);
       } catch (error) {
         const Error = error as { code?: string; message?: string };
         if (Error.code == "11000") {
-          return reply.status(409).send(ErrorCode.DuplicateUsername(username));
+          return reply.status(409).send(ErrorCode.DuplicateUsername(body.username));
         }
         return reply.status(500).send(ErrorCode.InternalServerError);
       }

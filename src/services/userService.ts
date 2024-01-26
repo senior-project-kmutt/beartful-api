@@ -1,6 +1,8 @@
 import { IUsers, Users } from "../models/user";
 import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
 import { Artworks, IArtworks } from "../models/artwork";
+import { ErrorCode, ErrorResponse } from "../response/errorResponse";
+import { FastifyReply } from "fastify";
 
 export const getUser = async () => {
   const users = await Users.find().lean();
@@ -13,7 +15,7 @@ export const getUserById = async (userId: string) => {
     username: 1,
     firstname: 1,
     lastname: 1,
-    profile_image: 1,
+    profileImage: 1,
     role: 1,
     createdAt: 1
   });
@@ -32,7 +34,7 @@ export const getChatRoomByUserId = async (userId: string): Promise<IChatRoom[]> 
           firstname: user.firstname,
           lastname: user.lastname,
           role: user.role,
-          profile_image: user.profile_image,
+          profileImage: user.profileImage,
           createdAt: user.createdAt
         } as IParticipant;
         return transformUser;
@@ -75,8 +77,44 @@ export const transformUserForSign = async (user: IUsers) => {
     username: user.username,
     firstname: user.firstname,
     lastname: user.lastname,
-    profile_image: user.profile_image,
+    profileImage: user.profileImage,
     role: user.role
   }
   return userForSign;
 };
+
+export const insertUser = async (user: any, reply: FastifyReply) => {
+  try {
+    if (user.role === "customer") {
+      const validationResult = await validateCustomerField(user);
+      if (validationResult) {
+        return reply.status(400).send(validationResult);
+      }
+      const response = await Users.create(user);
+      return response
+    }
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ErrorResponse) {
+      return reply.status(400).send(error);
+    }
+  }
+};
+
+const validateCustomerField = (request: any) => {
+  const requiredFields: Array<keyof IUsers> = [
+    'email',
+    'username',
+    'password',
+    'firstname',
+    'lastname',
+    'profileImage',
+    'role',
+    'phoneNumber'
+  ];
+
+  const missingFields = requiredFields.filter(field => !request[field]);
+  if (missingFields.length > 0) {
+    return ErrorCode.MissingRequiredField(missingFields.join(', '))
+  }
+}
