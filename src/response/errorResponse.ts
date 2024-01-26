@@ -22,6 +22,7 @@ export const ErrorCode = {
   DuplicateEmail: new ErrorResponse("E001", "Duplicate email"),
   InvalidUser: new ErrorResponse("E002", "Invalid username and password"),
   Unauthorized: new ErrorResponse("E003", "Unauthorized!"),
+  Forbidden: new ErrorResponse("E004", "Forbidden"),
   MissingRequiredField: (field: string) => {
     return new ErrorResponse("E004", `${field} is required`);
   }

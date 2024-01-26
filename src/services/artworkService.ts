@@ -1,4 +1,4 @@
-import { Artworks } from "../models/artwork";
+import { Artworks, IArtworkEditForm, IArtworks } from "../models/artwork";
 
 export const getArtwork = async (page?: string, pageSize?: string, type?: string) => {
   const pages = page ? parseInt(page) : 1;
@@ -21,3 +21,44 @@ export const getArtwork = async (page?: string, pageSize?: string, type?: string
     throw error;
   }
 };
+
+export const getArtworkById = async (artworkId: string) => {
+  try {
+    const response = await Artworks.findOne({ _id: artworkId });
+    return response;
+  } catch (error) {
+    console.error("Error get artwork by Id:", error);
+    throw error;
+  }
+};
+
+export const createArtwork = async (artwork: IArtworks) => {
+  try {
+    const response = await Artworks.create(artwork);
+    return response;
+  } catch (error) {
+    console.error("Error create artwork:", error);
+    throw error;
+  }
+};
+
+export const deleteArtwork = async (artworkId: string) => {
+  try {
+    const response = await Artworks.deleteOne({ _id: artworkId });
+    return response;
+  } catch (error) {
+    console.error("Error delete artwork:", error);
+    throw error;
+  }
+};
+
+export const updateArtwork = async (artworkId: string, updateArtwork: IArtworkEditForm) => {
+  try {
+    const response = await Artworks.updateOne({ _id: artworkId }, { $set: updateArtwork });
+    return response;
+  } catch (error) {
+    console.error("Error edit artwork:", error);
+    throw error;
+  }
+};
+

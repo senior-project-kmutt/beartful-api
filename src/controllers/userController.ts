@@ -4,13 +4,13 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getChatRoomByUserId, getUser, insertUser, transformUserForSign } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, getUserById, insertUser, transformUserForSign } from "../services/userService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
-  interface IParamsGetChatRoom {
-    userId: string;
-  }
+interface IParamsGetChatRoom {
+  userId: string;
+}
 
 export default async function userController(fastify: FastifyInstance) {
   // GET /api/v1/user
@@ -61,6 +61,20 @@ export default async function userController(fastify: FastifyInstance) {
       } else {
         return reply.status(401).send(ErrorCode.Unauthorized);
       }
+    }
+  );
+
+  fastify.get(
+    "/:userId/artworks",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const params = request.params as IParamsGetChatRoom;
+      const { page, pageSize, type } = request.query as {
+        page: string;
+        pageSize: string;
+        type: string;
+      };
+      const artworks = await getArtworkByUserName(params.userId, page, pageSize, type)
+      return artworks
     }
   );
 

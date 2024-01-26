@@ -5,17 +5,35 @@ export interface IArtworks {
     description: string
     price: string
     type: string
-    categoryId: number
+    categoryId: string[]
     likeCount: number
-    createdAt: Date
-    updatedAt: Date
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+export interface IArtworkAddForm {
+    freelanceId: number
+    images: Array<string>
+    name: string
+    description: string
+    price: string
+    type: string
+    categoryId: string[]
+}
+
+export interface IArtworkEditForm {
+    name: string
+    description: string
+    price: string
+    type: string
+    categoryId: string[]
 }
 
 import mongoose from "mongoose"
 
 const artworkSchema = new mongoose.Schema({
     freelanceId: {
-        type: Number,
+        type: String,
         required: true
     },
     images: {
@@ -39,7 +57,7 @@ const artworkSchema = new mongoose.Schema({
         required: true
     },
     categoryId: {
-        type: Number,
+        type: Array<string>,
         required: true
     },
     likeCount: {
