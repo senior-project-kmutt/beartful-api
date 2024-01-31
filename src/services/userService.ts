@@ -1,4 +1,4 @@
-import { IUsers, Users } from "../models/user";
+import { IUserFreelance, IUsers, Users } from "../models/user";
 import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
 import { ErrorCode, ErrorResponse } from "../response/errorResponse";
 import { FastifyReply } from "fastify";
@@ -69,6 +69,15 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
       const response = await Users.create(user);
       return response
     }
+
+    if (user.role === "freelance") {
+      const validationResult = await validateFreelanceField(user);
+      if (validationResult) {
+        return reply.status(400).send(validationResult);
+      }
+      const response = await Users.create(user);
+      return response
+    }
   } catch (error) {
     console.log(error);
     if (error instanceof ErrorResponse) {
@@ -87,6 +96,28 @@ const validateCustomerField = (request: any) => {
     'profileImage',
     'role',
     'phoneNumber'
+  ];
+
+  const missingFields = requiredFields.filter(field => !request[field]);
+  if (missingFields.length > 0) {
+    return ErrorCode.MissingRequiredField(missingFields.join(', '))
+  }
+}
+
+const validateFreelanceField = (request: any) => {
+  const requiredFields: Array<keyof IUserFreelance> = [
+    'email',
+    'username',
+    'password',
+    'firstname',
+    'lastname',
+    'profileImage',
+    'role',
+    'phoneNumber',
+    'dateOfBirth',
+    'address',
+    'education',
+    'bankAccount'
   ];
 
   const missingFields = requiredFields.filter(field => !request[field]);
