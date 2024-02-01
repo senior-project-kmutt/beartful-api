@@ -79,7 +79,10 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
       return response
     }
   } catch (error) {
-    console.log(error);
+    const Error = error as { code?: string; message?: string };
+    if (Error.code == "11000") {
+      return reply.status(409).send(ErrorCode.DuplicateUsername(user.username));
+    }
     if (error instanceof ErrorResponse) {
       return reply.status(400).send(error);
     }
