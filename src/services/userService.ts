@@ -85,13 +85,13 @@ export const transformUserForSign = async (user: IUsers) => {
 
 export const insertUser = async (user: any, reply: FastifyReply) => {
   try {
+    let response;
     if (user.role === "customer") {
       const validationResult = await validateCustomerField(user);
       if (validationResult) {
         return reply.status(400).send(validationResult);
       }
-      const response = await Users.create(user);
-      return response
+      response = await Users.create(user);
     }
 
     if (user.role === "freelance") {
@@ -99,9 +99,9 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
       if (validationResult) {
         return reply.status(400).send(validationResult);
       }
-      const response = await Users.create(user);
-      return response
+      response = await Users.create(user);
     }
+    return response
   } catch (error) {
     const Error = error as { code?: string; message?: string };
     if (Error.code == "11000") {
