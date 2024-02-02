@@ -15,6 +15,50 @@ export interface IUserLogin {
     password: string;
 }
 
+export interface IUserFreelance extends IUsers {
+    dateOfBirth: Date;
+    address: string;
+    education: Array<IUserEducation[]>;
+    experience?: Array<IUserExperience[]>;
+    skill?: Array<IUserSkillAndLanguage[]>;
+    language?: Array<IUserSkillAndLanguage[]>;
+    award?: Array<IUserAward[]>;
+    bankAccount: IUserBankAccount;
+}
+
+interface IUserEducation {
+    degree: string;
+    institution: string;
+    major: string
+}
+
+interface IUserExperience {
+    companyName: string;
+    position: string;
+    isCurrentJob: string;
+    monthStartJob: string;
+    yearStartJob: string;
+    monthEndJob?: string;
+    yearEndJob?: string
+}
+
+interface IUserSkillAndLanguage {
+    type: string;
+    title: string;
+    level: string;
+}
+
+interface IUserAward {
+    title: string;
+    description: string;
+}
+
+interface IUserBankAccount {
+    bankName: string;
+    bankAccountNumber: string;
+    bankAccountImage: string
+}
+
 import mongoose from "mongoose"
 
 const userSchema = new mongoose.Schema({
@@ -50,6 +94,38 @@ const userSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: true
+    },
+    dateOfBirth: {
+        type: Date,
+        required: false
+    },
+    address: {
+        type: String,
+        required: false
+    },
+    education: {
+        type: Array<IUserEducation>,
+        required: false
+    },
+    experience: {
+        type: Array<IUserExperience>,
+        required: false
+    },
+    skill: {
+        type: Array<IUserSkillAndLanguage>,
+        required: false
+    },
+    language: {
+        type: Array<IUserSkillAndLanguage>,
+        required: false
+    },
+    award: {
+        type: Array<IUserAward>,
+        required: false
+    },
+    bankAccount: {
+        type: Object,
+        required: false
     }
 }, {
     timestamps: true,

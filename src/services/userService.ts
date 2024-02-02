@@ -1,4 +1,4 @@
-import { IUsers, Users } from "../models/user";
+import { IUserFreelance, IUsers, Users } from "../models/user";
 import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
 import { Artworks, IArtworks } from "../models/artwork";
 import { ErrorCode, ErrorResponse } from "../response/errorResponse";
@@ -93,8 +93,20 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
       const response = await Users.create(user);
       return response
     }
+
+    if (user.role === "freelance") {
+      const validationResult = await validateFreelanceField(user);
+      if (validationResult) {
+        return reply.status(400).send(validationResult);
+      }
+      const response = await Users.create(user);
+      return response
+    }
   } catch (error) {
-    console.log(error);
+    const Error = error as { code?: string; message?: string };
+    if (Error.code == "11000") {
+      return reply.status(409).send(ErrorCode.DuplicateUsername(user.username));
+    }
     if (error instanceof ErrorResponse) {
       return reply.status(400).send(error);
     }
@@ -111,6 +123,28 @@ const validateCustomerField = (request: any) => {
     'profileImage',
     'role',
     'phoneNumber'
+  ];
+
+  const missingFields = requiredFields.filter(field => !request[field]);
+  if (missingFields.length > 0) {
+    return ErrorCode.MissingRequiredField(missingFields.join(', '))
+  }
+}
+
+const validateFreelanceField = (request: any) => {
+  const requiredFields: Array<keyof IUserFreelance> = [
+    'email',
+    'username',
+    'password',
+    'firstname',
+    'lastname',
+    'profileImage',
+    'role',
+    'phoneNumber',
+    'dateOfBirth',
+    'address',
+    'education',
+    'bankAccount'
   ];
 
   const missingFields = requiredFields.filter(field => !request[field]);
