@@ -32,8 +32,10 @@ export default async function userController(fastify: FastifyInstance) {
         if (!body.role) {
           return reply.status(400).send(ErrorCode.MissingRequiredField("role"))
         }
-        const response = await insertUser(body, reply)
-        reply.send(response);
+        const user = await insertUser(body, reply)
+        const userForSign = await transformUserForSign(user as unknown as IUsers);
+        const token = jwt.sign(userForSign, SECRET_KEY);
+        return reply.status(200).send({ token: token, user: userForSign });
       } catch (error) {
         const Error = error as { code?: string; message?: string };
         if (Error.code == "11000") {
