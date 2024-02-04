@@ -8,6 +8,7 @@ export interface ICartItem {
     freelanceId: string
     customerId: string
     artworkName: string
+    checked: boolean
     createdAt?: Date
     updatedAt?: Date
 }
@@ -22,6 +23,7 @@ export interface ICartAdd {
     freelanceId: string
     artworkId: string
     artworkName: string
+    checked: true
 }
 
 export interface ICarts {
@@ -33,6 +35,7 @@ export interface ICarts {
 export interface ICartEdit {
     quantity: number
     netAmount: number
+    checked: boolean
 }
 
 import mongoose from "mongoose"
@@ -68,6 +71,10 @@ const cartSchema = new mongoose.Schema({
     },
     artworkName: {
         type: String,
+        required: true
+    },
+    checked: {
+        type: Boolean,
         required: true
     },
 }, {

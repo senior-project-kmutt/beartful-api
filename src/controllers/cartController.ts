@@ -45,9 +45,9 @@ export default async function cartController(fastify: FastifyInstance) {
                 }
                 const updatedCart: ICartEdit = {
                     quantity: body.quantity || existingCart.quantity,
-                    netAmount: body.quantity * existingCart.amount
+                    netAmount: body.quantity * existingCart.amount,
+                    checked: body.checked
                 };
-
                 await updateCart(cartId, updatedCart);
 
                 return reply.status(200).send(updatedCart);
