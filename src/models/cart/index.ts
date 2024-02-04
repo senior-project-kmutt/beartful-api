@@ -47,15 +47,15 @@ const cartSchema = new mongoose.Schema({
         // required: true
     },
     amount: {
-        type: String,
+        type: Number,
         required: true
     },
     quantity: {
-        type: String,
+        type: Number,
         // required: true
     },
     netAmount: {
-        type: String,
+        type: Number,
         required: true
     },
     freelanceId: {
