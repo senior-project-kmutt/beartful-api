@@ -60,3 +60,13 @@ export const updateCart = async (cartId: string, updateCart: ICartEdit) => {
     }
 };
 
+export const deleteCart = async (cartId: string) => {
+    try {
+        const response = await Carts.deleteOne({ _id: cartId });
+        return response;
+    } catch (error) {
+        console.error("Error delete cart:", error);
+        throw error;
+    }
+};
+
