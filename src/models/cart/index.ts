@@ -20,6 +20,7 @@ export interface ICarts {
 
 export interface ICartEdit {
     quantity: number
+    netAmount: number
 }
 
 import mongoose from "mongoose"

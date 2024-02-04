@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { ICartEdit } from "../models/cart";
+import { ICartEdit, ICartItem } from "../models/cart";
 import { validateToken } from "../services/userService";
 import { getCartById, updateCart } from "../services/cartService";
 import { ErrorCode } from "../response/errorResponse";
@@ -19,13 +19,14 @@ export default async function cartController(fastify: FastifyInstance) {
             try {
                 if (auth) {
                     const decode = validateToken(auth);
-                    const existingCart = await getCartById(cartId);
+                    const existingCart:ICartItem = await getCartById(cartId);
 
-                    if (!existingCart || existingCart.freelanceId !== decode.id) {
+                    if (!existingCart || existingCart.customerId !== decode.id) {
                         return reply.status(403).send(ErrorCode.Forbidden);
                     }
                     const updatedCart: ICartEdit = {
                         quantity: body.quantity || existingCart.quantity,
+                        netAmount: body.quantity*existingCart.amount
                     };
 
                     await updateCart(cartId, updatedCart);
