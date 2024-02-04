@@ -12,6 +12,18 @@ export interface ICartItem {
     updatedAt?: Date
 }
 
+export interface ICartAdd {
+    customerId: string
+    type: string
+    description: string
+    amount: number
+    quantity: number
+    netAmount: number
+    freelanceId: string
+    artworkId: string
+    artworkName: string
+}
+
 export interface ICarts {
     freelanceId: string
     freelanceUsername: string

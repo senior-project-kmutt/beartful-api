@@ -1,5 +1,26 @@
-import { Carts, ICartEdit, ICartItem, ICarts } from "../models/cart";
+import { Carts, ICartAdd, ICartEdit, ICartItem, ICarts } from "../models/cart";
 import { IUsers, Users } from "../models/user";
+
+export const createCartItem = async (userId: string, body: ICartItem) => {
+    try {
+        const cart: ICartAdd = {
+            customerId: userId,
+            type: body.type,
+            description: body.description,
+            amount: body.amount,
+            quantity: body.quantity,
+            netAmount: body.amount * body.quantity,
+            freelanceId: body.freelanceId,
+            artworkId: body._id,
+            artworkName: body.artworkName
+        }
+        const response = await Carts.create(cart);
+        return response;
+    } catch (error) {
+        console.error("Error add carts:", error);
+        throw error;
+    }
+};
 
 export const getCustomerCartByUserId = async (userId: string, type: string) => {
     try {
