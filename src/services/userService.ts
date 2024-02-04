@@ -3,6 +3,9 @@ import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
 import { Artworks, IArtworks } from "../models/artwork";
 import { ErrorCode, ErrorResponse } from "../response/errorResponse";
 import { FastifyReply } from "fastify";
+import jwt, { JwtPayload } from "jsonwebtoken";
+const SECRET_KEY =
+  "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
 export const getUser = async () => {
   const users = await Users.find().lean();
@@ -152,3 +155,12 @@ const validateFreelanceField = (request: any) => {
     return ErrorCode.MissingRequiredField(missingFields.join(', '))
   }
 }
+
+export const validateToken = (auth: string) => {
+  try {
+    const token = auth.split("Bearer ")[1];
+    return jwt.verify(token, SECRET_KEY) as JwtPayload;
+  } catch (error) {
+    throw new Error("Invalid token");
+  }
+};

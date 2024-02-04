@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
 import { getArtworkByUserName, getChatRoomByUserId, getUser, getUserById, insertUser, transformUserForSign } from "../services/userService";
+import { getCustomerCartByUserId } from "../services/cartService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -77,6 +78,18 @@ export default async function userController(fastify: FastifyInstance) {
       };
       const artworks = await getArtworkByUserName(params.userId, page, pageSize, type)
       return artworks
+    }
+  );
+
+  fastify.get(
+    "/:userId/carts",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const params = request.params as IParamsGetChatRoom;
+      const { type } = request.query as {
+        type: string;
+      };
+      const carts = await getCustomerCartByUserId(params.userId, type)
+      return carts
     }
   );
 
