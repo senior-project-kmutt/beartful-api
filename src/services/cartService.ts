@@ -1,4 +1,4 @@
-import { Carts, ICartItem, ICarts } from "../models/cart";
+import { Carts, ICartEdit, ICartItem, ICarts } from "../models/cart";
 import { IUsers, Users } from "../models/user";
 
 export const getCustomerCartByUserId = async (userId: string, type: string) => {
@@ -13,6 +13,16 @@ export const getCustomerCartByUserId = async (userId: string, type: string) => {
         return transformedCarts;
     } catch (error) {
         console.error("Error fetching carts:", error);
+        throw error;
+    }
+};
+
+export const getCartById = async (cartId: string) => {
+    try {
+        const response = await Carts.findOne({ _id: cartId });
+        return response;
+    } catch (error) {
+        console.error("Error get cart by Id:", error);
         throw error;
     }
 };
@@ -38,5 +48,15 @@ const transformToICarts = async (cartItems: ICartItem[]): Promise<ICarts[]> => {
     }
 
     return result;
+};
+
+export const updateCart = async (cartId: string, updateCart: ICartEdit) => {
+    try {
+        const response = await Carts.updateOne({ _id: cartId }, { $set: updateCart });
+        return response;
+    } catch (error) {
+        console.error("Error edit cart:", error);
+        throw error;
+    }
 };
 

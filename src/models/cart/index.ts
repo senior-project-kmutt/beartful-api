@@ -18,6 +18,10 @@ export interface ICarts {
     cartItem: ICartItem[]
 }
 
+export interface ICartEdit {
+    quantity: number
+}
+
 import mongoose from "mongoose"
 
 const cartSchema = new mongoose.Schema({
