@@ -53,7 +53,7 @@ interface IUserAward {
     description: string;
 }
 
-interface IUserBankAccount {
+export interface IUserBankAccount {
     bankName: string;
     bankAccountNumber: string;
     bankAccountImage: string
