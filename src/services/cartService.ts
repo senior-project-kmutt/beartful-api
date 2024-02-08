@@ -39,6 +39,22 @@ export const getCustomerCartByUserId = async (userId: string, type: string) => {
     }
 };
 
+export const getCustomerCartReviewOrderByUserId = async (userId: string, type: string) => {
+    try {
+        let query: any = { customerId: userId, checked: true };
+
+        if (type !== undefined) {
+            query.type = type;
+        }
+        const carts = await Carts.find(query).sort({ createdAt: -1 });
+        const transformedCarts = await transformToICarts(carts);
+        return transformedCarts;
+    } catch (error) {
+        console.error("Error fetching carts:", error);
+        throw error;
+    }
+};
+
 export const getCartById = async (cartId: string) => {
     try {
         const response = await Carts.findOne({ _id: cartId });
