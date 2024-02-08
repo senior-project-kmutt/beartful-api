@@ -26,13 +26,13 @@ export interface IUserFreelance extends IUsers {
     bankAccount: IUserBankAccount;
 }
 
-interface IUserEducation {
+export interface IUserEducation {
     degree: string;
     institution: string;
     major: string
 }
 
-interface IUserExperience {
+export interface IUserExperience {
     companyName: string;
     position: string;
     isCurrentJob: string;
@@ -42,13 +42,13 @@ interface IUserExperience {
     yearEndJob?: string
 }
 
-interface IUserSkillAndLanguage {
+export interface IUserSkillAndLanguage {
     type: string;
     title: string;
     level: string;
 }
 
-interface IUserAward {
+export interface IUserAward {
     title: string;
     description: string;
 }
