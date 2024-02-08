@@ -1,16 +1,29 @@
+import { IUserAward, IUserBankAccount, IUserEducation, IUserExperience, IUserSkillAndLanguage } from './../models/user/index';
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { IUserLogin, IUsers, Users } from "../models/user";
 import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, getUserById, insertUser, transformUserForSign } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
 interface IParamsGetChatRoom {
   userId: string;
+}
+
+interface IUserUpdateBankAccount {
+  bankAccount: IUserBankAccount;
+}
+
+interface IUserUpdateFreelanceDetails {
+  education: IUserEducation;
+  experience: IUserExperience;
+  skill: IUserSkillAndLanguage,
+  language: IUserSkillAndLanguage,
+  award: IUserAward
 }
 
 export default async function userController(fastify: FastifyInstance) {
@@ -43,6 +56,31 @@ export default async function userController(fastify: FastifyInstance) {
           return reply.status(409).send(ErrorCode.DuplicateUsername(body.username));
         }
         return reply.status(500).send(ErrorCode.InternalServerError);
+      }
+    }
+  );
+
+  fastify.get(
+    "/:userId",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const params = request.params as IParamsGetChatRoom;
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        const test = jwt.decode(token) as JwtPayload;
+        if (test.id != params.userId) {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+          const user = await getUserById(params.userId);
+          return reply.status(200).send(user[0]);
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized)
+        }
+
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
       }
     }
   );
@@ -126,6 +164,60 @@ export default async function userController(fastify: FastifyInstance) {
         return reply.status(200).send({ token: token, user: userForSign });
       } else {
         return reply.status(401).send(ErrorCode.InvalidUser);
+      }
+    }
+  );
+
+  fastify.patch(
+    "/:userId/updateBankAccount",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const params = request.params as IParamsGetChatRoom;
+      const body: IUserUpdateBankAccount = request.body as IUserUpdateBankAccount;
+
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        const userDecode = jwt.decode(token) as JwtPayload;
+        if (userDecode.id != params.userId) {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+          const response = await updateProfile(params.userId, body);
+          return reply.status(200).send(response[0]);
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized)
+        }
+
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
+      }
+    });
+
+  fastify.patch(
+    "/:userId/updateFreelanceDetails",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const params = request.params as IParamsGetChatRoom;
+      const body: IUserUpdateFreelanceDetails = request.body as IUserUpdateFreelanceDetails;
+      console.log(body);
+
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        const userDecode = jwt.decode(token) as JwtPayload;
+        if (userDecode.id != params.userId) {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+          const response = await updateProfile(params.userId, body);
+          return reply.status(200).send(response[0]);
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized)
+        }
+
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
       }
     }
   );

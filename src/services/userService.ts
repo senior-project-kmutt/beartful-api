@@ -13,6 +13,11 @@ export const getUser = async () => {
 };
 
 export const getUserById = async (userId: string) => {
+  const user = await Users.find({ _id: userId });
+  return user;
+};
+
+export const getParticipantsInfo = async (userId: string) => {
   const user = await Users.find({ _id: userId }, {
     _id: 0,
     username: 1,
@@ -30,7 +35,7 @@ export const getChatRoomByUserId = async (userId: string): Promise<IChatRoom[]> 
   await Promise.all(
     chatRooms.map(async (chatRoom: IChatRoom) => {
       const tranform: any = await Promise.all(chatRoom.participants.map(async (userId) => {
-        const user = await getUserById(userId as string);
+        const user = await getParticipantsInfo(userId as string);
         const transformUser = {
           user_id: userId,
           username: user.username,
@@ -113,6 +118,16 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
     if (error instanceof ErrorResponse) {
       return reply.status(400).send(error);
     }
+  }
+};
+
+export const updateProfile = async (userId: string, updateProfile: any) => {
+  try {
+      const response = await Users.updateOne({ _id: userId }, { $set: updateProfile });
+      return response;
+  } catch (error) {
+      console.error("Error edit user:", error);
+      throw error;
   }
 };
 
