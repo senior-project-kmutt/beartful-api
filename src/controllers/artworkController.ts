@@ -92,6 +92,7 @@ export default async function artworkController(fastify: FastifyInstance) {
             price: body.price || existingArtwork.price,
             type: body.type || existingArtwork.type,
             categoryId: body.categoryId || existingArtwork.categoryId,
+            updatedAt: new Date()
           };
 
           await updateArtwork(artworkId, updatedArtwork);

@@ -27,6 +27,7 @@ export interface IArtworkEditForm {
     price: string
     type: string
     categoryId: string[]
+    updatedAt: Date
 }
 
 import mongoose from "mongoose"
