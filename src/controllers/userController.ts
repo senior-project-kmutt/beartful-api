@@ -26,6 +26,15 @@ interface IUserUpdateFreelanceDetails {
   award: IUserAward
 }
 
+interface IUserUpdatePersonal {
+  firstname: string;
+  lastname: string;
+  email: string,
+  phoneNumber: string,
+  dateOfBirth?: IUserAward,
+  address?: string
+}
+
 export default async function userController(fastify: FastifyInstance) {
   // GET /api/v1/user
   fastify.get(
@@ -200,6 +209,33 @@ export default async function userController(fastify: FastifyInstance) {
       const auth = request.headers.authorization;
       const params = request.params as IParamsGetChatRoom;
       const body: IUserUpdateFreelanceDetails = request.body as IUserUpdateFreelanceDetails;
+
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        const userDecode = jwt.decode(token) as JwtPayload;
+        if (userDecode.id != params.userId) {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+          const response = await updateProfile(params.userId, body);
+          return reply.status(200).send(response[0]);
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized)
+        }
+
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
+      }
+    }
+  );
+
+  fastify.patch(
+    "/:userId/personal",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const params = request.params as IParamsGetChatRoom;
+      const body: IUserUpdatePersonal = request.body as IUserUpdatePersonal;
       console.log(body);
 
       if (auth) {
