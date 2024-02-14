@@ -14,7 +14,8 @@ export interface IQuotation {
   quatity: number;
   amount: number;
   note: string;
-  confirmQuotation: string
+  confirmQuotation: string;
+  status: string
 }
 
 import mongoose from "mongoose";
@@ -78,6 +79,10 @@ const quotationSchema = new mongoose.Schema(
       required: false,
     },
     confirmQuotation: {
+      type: String,
+      required: true,
+    },
+    status: {
       type: String,
       required: true,
     },

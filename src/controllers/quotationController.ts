@@ -46,7 +46,6 @@ export default async function userController(fastify: FastifyInstance) {
   ) {
     const auth = request.headers.authorization;
     const params = request.params as IParamsGetById;
-    // const body: IQuotation = request.body as IQuotation;
     if (auth) {
       try {
         const token = auth.split("Bearer ")[1];

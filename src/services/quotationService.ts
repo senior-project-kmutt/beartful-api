@@ -37,7 +37,7 @@ export const getQuotationByCustomerId = async (customerId: string) => {
   try {
     const user = await Users.find({ _id: customerId });
     if (user) {
-      const quotations = await Quotation.find({customerUsername: user[0].username}).sort({ createdAt: -1 });
+      const quotations = await Quotation.find({customerUsername: user[0].username, status: 'inCart'}).sort({ createdAt: -1 });
       const transformQuotation = await transformToICarts(quotations);
       return transformQuotation;
     }
@@ -70,4 +70,17 @@ const transformToICarts = async (quotationItems: IQuotation[]): Promise<IGetQuot
   }
 
   return result;
+};
+
+export const updateQuotationStatus = async (quotationId: string, status: string) => {
+  try {
+    const newStatus = {
+      status: status
+    }
+    const response = await Quotation.updateOne({ _id: quotationId }, { $set: newStatus });
+    return response;
+  } catch (error: any) {
+    console.error("Error create artwork:", error);
+    throw error;
+  }
 };

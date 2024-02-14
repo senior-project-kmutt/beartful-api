@@ -6,6 +6,7 @@ import { createOrder, createPurchaseOrderItem, getPurchaseOrderById, updatePurch
 import { getArtworkById } from "../services/artworkService";
 import { validateToken } from "../services/userService";
 import { IPurchaseOrderItem } from "../models/purchaseOderItem";
+import { updateQuotationStatus } from "../services/quotationService";
 const SECRET_KEY =
     "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -20,7 +21,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
             if (auth) {
                 const token = auth.split("Bearer ")[1];
                 const decode = jwt.verify(token, SECRET_KEY) as JwtPayload;
-                if (decode.role != "freelance") {
+                if (decode.role != "customer") {
                     return reply.status(401).send(ErrorCode.Unauthorized);
                 }
 
@@ -74,8 +75,11 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         note: body.purchaseOrder.note,
                         type: body.purchaseOrder.type,
                     };
-                    const response = await createOrder(purchaseOrder);
-                    return reply.status(200).send(response);
+                    if (body.purchaseOrder.quotationId) {
+                        const response = await createOrder(purchaseOrder);
+                        updateQuotationStatus(body.purchaseOrder.quotationId, 'ordered')
+                        return reply.status(200).send(response);
+                    }
                 }
             } else {
                 return reply.status(401).send(ErrorCode.Unauthorized);
