@@ -22,7 +22,7 @@ export const getQuotationByCustomerId = async (customerId: string) => {
   try {
     const user = await Users.find({ _id: customerId });
     if (user) {
-      const quotations = await Quotation.find({customerUsername: user[0].username})
+      const quotations = await Quotation.find({ customerUsername: user[0].username })
       return quotations;
     }
   } catch (error: any) {
@@ -31,7 +31,7 @@ export const getQuotationByCustomerId = async (customerId: string) => {
       console.error("Validation errors:", validationErrors);
       throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
     }
-    console.error("Error create artwork:", error);
+    console.error("Error get quotation:", error);
     throw error;
   }
 };

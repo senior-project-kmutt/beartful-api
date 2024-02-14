@@ -5,9 +5,10 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, validateToken } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
+import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID } from '../services/purchaseOrderService';
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -290,6 +291,46 @@ export default async function userController(fastify: FastifyInstance) {
           return reply.status(404).send(ErrorCode.NotFound);
         }
 
+      }
+    }
+  );
+
+  fastify.get(
+    "/customer/:userId/orders",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const { userId } = request.params as { userId: string };
+      const { status } = request.query as { status: string };
+      try {
+        if (auth) {
+          const orders = await getCustomerPurchaseOrderByCustomerID(userId, status);
+          return reply.status(200).send(orders);
+        } else {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+
+      } catch {
+        return reply.status(500).send(ErrorCode.InternalServerError);
+      }
+    }
+  );
+
+  fastify.get(
+    "/freelance/:userId/orders",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const { userId } = request.params as { userId: string };
+      const { status } = request.query as { status: string };
+      try {
+        if (auth) {
+          const orders = await getFreelanceWorkByFreelanceID(userId, status);
+          return reply.status(200).send(orders);
+        } else {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+
+      } catch {
+        return reply.status(500).send(ErrorCode.InternalServerError);
       }
     }
   );
