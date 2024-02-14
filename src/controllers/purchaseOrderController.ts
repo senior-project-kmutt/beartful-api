@@ -23,36 +23,65 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                     return reply.status(401).send(ErrorCode.Unauthorized);
                 }
 
-                const purchaseOrder: IPurchaseOrder = {
-                    freelanceId: decode.id,
-                    customerId: body.purchaseOrder.customerId,
-                    quotationId: body.purchaseOrder.quotationId,
-                    status: body.purchaseOrder.status,
-                    amount: body.purchaseOrder.amount,
-                    vat: 0,
-                    netAmount: body.purchaseOrder.amount,
-                    confirmedDate: new Date(),
-                    paymentMethod: body.purchaseOrder.paymentMethod,
-                    note: body.purchaseOrder.note,
-                    type: body.purchaseOrder.type,
-                };
-                const response = await createOrder(purchaseOrder);
-
-                if (response && body.purchaseOrder.type === "readyMade") {
-                    body.artworkItem.forEach(async item => {
-                        const existingArtwork = await getArtworkById(item);
-                        const purchaseOrderItem: IPurchaseOrderItem = {
-                            purchaseOrderId: response._id,
-                            artworkId: item,
-                            price: existingArtwork.price,
-                            quantity: 1
+                if (body.purchaseOrder.type === "readyMade" && body.artworkItem) {
+                    try {
+                        const purchaseOrderItems: any[] = [];
+                        for (const item of body.artworkItem) {
+                            const existingArtwork = await getArtworkById(item);
+                            console.log(existingArtwork);
+                            if (!existingArtwork) {
+                                return reply.status(404).send(ErrorCode.NotFound);
+                            }
+                            const purchaseOrderItem = {
+                                purchaseOrderId: undefined,
+                                artworkId: item,
+                                price: existingArtwork.price,
+                                quantity: 1
+                            };
+                            purchaseOrderItems.push(purchaseOrderItem);
                         }
-                        await createPurchaseOrderItem(purchaseOrderItem);
-                    })
+                        const purchaseOrder: IPurchaseOrder = {
+                            freelanceId: decode.id,
+                            customerId: body.purchaseOrder.customerId,
+                            quotationId: body.purchaseOrder.quotationId,
+                            status: body.purchaseOrder.status,
+                            amount: body.purchaseOrder.amount,
+                            vat: 0,
+                            netAmount: body.purchaseOrder.amount,
+                            confirmedDate: new Date(),
+                            paymentMethod: body.purchaseOrder.paymentMethod,
+                            note: body.purchaseOrder.note,
+                            type: body.purchaseOrder.type,
+                        };
+                        const response = await createOrder(purchaseOrder);
+                        for (const purchaseOrderItem of purchaseOrderItems) {
+                            purchaseOrderItem.purchaseOrderId = response._id;
+                        }
+                        await Promise.all(purchaseOrderItems.map(item => createPurchaseOrderItem(item)));
+                        return reply.status(200).send(response);
+                    } catch (error: any) {
+                        if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
+                            return reply.status(404).send(ErrorCode.NotFound);
+                        }
+                        return reply.status(500).send(ErrorCode.InternalServerError);
+                    }
+                } else {
+                    const purchaseOrder: IPurchaseOrder = {
+                        freelanceId: decode.id,
+                        customerId: body.purchaseOrder.customerId,
+                        quotationId: body.purchaseOrder.quotationId,
+                        status: body.purchaseOrder.status,
+                        amount: body.purchaseOrder.amount,
+                        vat: 0,
+                        netAmount: body.purchaseOrder.amount,
+                        confirmedDate: new Date(),
+                        paymentMethod: body.purchaseOrder.paymentMethod,
+                        note: body.purchaseOrder.note,
+                        type: body.purchaseOrder.type,
+                    };
+                    const response = await createOrder(purchaseOrder);
+                    return reply.status(200).send(response);
                 }
-
-                return reply.status(200).send(response);
-
             } else {
                 return reply.status(401).send(ErrorCode.Unauthorized);
             }
@@ -64,5 +93,4 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
             return reply.status(500).send(ErrorCode.InternalServerError);
         }
     });
-
 }
