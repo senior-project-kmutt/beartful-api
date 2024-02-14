@@ -46,7 +46,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             status: body.purchaseOrder.status,
                             amount: body.purchaseOrder.amount,
                             vat: 0,
-                            netAmount: body.purchaseOrder.amount,
+                            netAmount: body.purchaseOrder.netAmount,
                             confirmedDate: new Date(),
                             paymentMethod: body.purchaseOrder.paymentMethod,
                             note: body.purchaseOrder.note,
