@@ -34,9 +34,16 @@ export const getArtworkById = async (artworkId: string) => {
 
 export const createArtwork = async (artwork: IArtworks) => {
   try {
-    const response = await Artworks.create(artwork);
+    const newArtwork = new Artworks(artwork);
+    await newArtwork.validate();
+    const response = await newArtwork.save();
     return response;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.errors) {
+      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+      console.error("Validation errors:", validationErrors);
+      throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+    }
     console.error("Error create artwork:", error);
     throw error;
   }

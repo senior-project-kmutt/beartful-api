@@ -9,8 +9,8 @@ export interface ICartItem {
     customerId: string
     artworkName: string
     checked: boolean
-    createdAt?: Date
-    updatedAt?: Date
+    createdAt: Date
+    updatedAt: Date
 }
 
 export interface ICartAdd {

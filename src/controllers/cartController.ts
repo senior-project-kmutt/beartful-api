@@ -19,7 +19,7 @@ export default async function cartController(fastify: FastifyInstance) {
             if (auth) {
                 const decode = validateToken(auth);
                 if (!decode.id) {
-                    return reply.status(403).send(ErrorCode.Forbidden);
+                    return reply.status(401).send(ErrorCode.Unauthorized);
                 }
                 return reply.status(200).send(await createCartItem(decode.id, body));
             } else {

@@ -30,7 +30,7 @@ export interface IArtworkEditForm {
     updatedAt: Date
 }
 
-import mongoose from "mongoose"
+import mongoose, { Date } from "mongoose"
 
 const artworkSchema = new mongoose.Schema({
     freelanceId: {
@@ -38,8 +38,22 @@ const artworkSchema = new mongoose.Schema({
         required: true
     },
     images: {
-        type: Array<string>,
-        required: true
+        type: [String],
+        required: true,
+        validate: [
+            {
+                validator: function (value: any) {
+                    return value.length > 0;
+                },
+                message: "Images array must not be empty"
+            },
+            {
+                validator: function (value: any) {
+                    return value.length <= 20;
+                },
+                message: "Images array must contain at most 20 items"
+            }
+        ]
     },
     name: {
         type: String,
@@ -58,8 +72,14 @@ const artworkSchema = new mongoose.Schema({
         required: true
     },
     categoryId: {
-        type: Array<string>,
-        required: true
+        type: [String],
+        required: true,
+        validate: {
+            validator: function (value: any) {
+                return value.length > 0;
+            },
+            message: "Category array must not be empty"
+        }
     },
     likeCount: {
         type: Number,

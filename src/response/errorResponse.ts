@@ -25,5 +25,7 @@ export const ErrorCode = {
   Forbidden: new ErrorResponse("E004", "Forbidden"),
   MissingRequiredField: (field: string) => {
     return new ErrorResponse("E004", `${field} is required`);
-  }
+  },
+  NotFound: new ErrorResponse("E005", "Not Found"),
+  ValidationFail: new ErrorResponse("E006", "Validation Fail"),
 };

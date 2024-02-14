@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { createArtwork, deleteArtwork, getArtwork, getArtworkById, updateArtwork } from "../services/artworkService";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { IArtworkAddForm, IArtworkEditForm, IArtworks } from "../models/artwork";
+import { Artworks, IArtworkAddForm, IArtworkEditForm, IArtworks } from "../models/artwork";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -43,6 +43,9 @@ export default async function artworkController(fastify: FastifyInstance) {
       try {
         const token = auth.split("Bearer ")[1];
         const decode = jwt.verify(token, SECRET_KEY) as JwtPayload;
+        if (decode.role != "freelance") {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
         const artwork: IArtworks = {
           freelanceId: decode.id,
           images: body.images,
@@ -53,20 +56,46 @@ export default async function artworkController(fastify: FastifyInstance) {
           categoryId: body.categoryId,
           likeCount: 0
         }
-        createArtwork(artwork)
-      } catch (error) {
-        reply.status(401).send(ErrorCode.Unauthorized);
+        const response = await createArtwork(artwork)
+        return reply.status(200).send(response);
+      } catch (error: any) {
+        if (error.message.startsWith('Validation failed')) {
+          return reply.status(400).send(ErrorCode.ValidationFail);
+        } else {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
       }
     } else {
-      return reply.status(401).send(ErrorCode.Unauthorized);
+      return reply.status(500).send(ErrorCode.InternalServerError);
     }
   });
 
   fastify.delete(
     "/:artworkId",
     async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
       const req = request.params as GetArtworkId
-      reply.send(await deleteArtwork(req.artworkId));
+      try {
+        if (auth) {
+          const decode = validateToken(auth);
+
+          const existingArtwork = await getArtworkById(req.artworkId);
+          if (existingArtwork.freelanceId !== decode.id) {
+            return reply.status(401).send(ErrorCode.Unauthorized);
+          }
+
+        } else {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+        await deleteArtwork(req.artworkId)
+        reply.status(200).send({ message: "delete artwork successfully" })
+
+      } catch (error: any) {
+        if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
+          return reply.status(404).send(ErrorCode.NotFound);
+        }
+        return reply.status(500).send(ErrorCode.InternalServerError);
+      }
     }
   );
 
@@ -82,8 +111,8 @@ export default async function artworkController(fastify: FastifyInstance) {
           const decode = validateToken(auth);
 
           const existingArtwork = await getArtworkById(artworkId);
-          if (!existingArtwork || existingArtwork.freelanceId !== decode.id) {
-            return reply.status(403).send(ErrorCode.Forbidden);
+          if (existingArtwork.freelanceId !== decode.id) {
+            return reply.status(401).send(ErrorCode.Unauthorized);
           }
 
           const updatedArtwork: IArtworkEditForm = {
@@ -92,17 +121,18 @@ export default async function artworkController(fastify: FastifyInstance) {
             price: body.price || existingArtwork.price,
             type: body.type || existingArtwork.type,
             categoryId: body.categoryId || existingArtwork.categoryId,
-            updatedAt: new Date()
+            updatedAt: new Date() as any
           };
 
           await updateArtwork(artworkId, updatedArtwork);
-
           return reply.status(200).send(updatedArtwork);
         } else {
           return reply.status(401).send(ErrorCode.Unauthorized);
         }
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
+          return reply.status(404).send(ErrorCode.NotFound);
+        }
         return reply.status(500).send(ErrorCode.InternalServerError);
       }
     });

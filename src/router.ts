@@ -9,6 +9,7 @@ import chatMessagesController from "./controllers/chatMessagesController";
 import chatRoomController from "./controllers/chatRoomController";
 import categoryController from "./controllers/categoryController";
 import cartController from "./controllers/cartController";
+import purchaseOrderController from "./controllers/purchaseOrderController";
 
 export default async function router(fastify: FastifyInstance) {
   fastify.register(cors);
@@ -21,4 +22,6 @@ export default async function router(fastify: FastifyInstance) {
   fastify.register(chatRoomController, { prefix: "/api/chatRoom" });
   fastify.register(categoryController, { prefix: "/api/categories" });
   fastify.register(cartController, { prefix: "/api/carts" });
+  fastify.register(purchaseOrderController, { prefix: "/api/purchaseOrders" });
+
 }
