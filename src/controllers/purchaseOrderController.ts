@@ -2,7 +2,6 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { IOrder, IPurchaseOrder } from "../models/purchaseOrder";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { IPurchaseOrderItem } from "../models/purchaseOderItem";
 import { createOrder, createPurchaseOrderItem } from "../services/purchaseOrderService";
 import { getArtworkById } from "../services/artworkService";
 const SECRET_KEY =
