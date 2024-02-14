@@ -2,8 +2,10 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { IOrder, IPurchaseOrder } from "../models/purchaseOrder";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { createOrder, createPurchaseOrderItem } from "../services/purchaseOrderService";
+import { createOrder, createPurchaseOrderItem, getPurchaseOrderById, updatePurchaseOrderStatus } from "../services/purchaseOrderService";
 import { getArtworkById } from "../services/artworkService";
+import { validateToken } from "../services/userService";
+import { IPurchaseOrderItem } from "../models/purchaseOderItem";
 const SECRET_KEY =
     "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -24,21 +26,17 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
 
                 if (body.purchaseOrder.type === "readyMade" && body.artworkItem) {
                     try {
-                        const purchaseOrderItems: any[] = [];
-                        for (const item of body.artworkItem) {
-                            const existingArtwork = await getArtworkById(item);
-                            console.log(existingArtwork);
-                            if (!existingArtwork) {
-                                return reply.status(404).send(ErrorCode.NotFound);
-                            }
-                            const purchaseOrderItem = {
-                                purchaseOrderId: undefined,
-                                artworkId: item,
-                                price: existingArtwork.price,
-                                quantity: 1
-                            };
-                            purchaseOrderItems.push(purchaseOrderItem);
+                        const existingArtwork = await getArtworkById(body.artworkItem);
+                        if (!existingArtwork) {
+                            return reply.status(404).send(ErrorCode.NotFound);
                         }
+                        const purchaseOrderItem: IPurchaseOrderItem = {
+                            purchaseOrderId: "",
+                            artworkId: body.artworkItem,
+                            price: existingArtwork.price,
+                            quantity: 1
+                        };
+
                         const purchaseOrder: IPurchaseOrder = {
                             freelanceId: decode.id,
                             customerId: body.purchaseOrder.customerId,
@@ -53,10 +51,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             type: body.purchaseOrder.type,
                         };
                         const response = await createOrder(purchaseOrder);
-                        for (const purchaseOrderItem of purchaseOrderItems) {
-                            purchaseOrderItem.purchaseOrderId = response._id;
-                        }
-                        await Promise.all(purchaseOrderItems.map(item => createPurchaseOrderItem(item)));
+                        purchaseOrderItem.purchaseOrderId = response._id;
+                        await createPurchaseOrderItem(purchaseOrderItem);
                         return reply.status(200).send(response);
                     } catch (error: any) {
                         if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
@@ -92,4 +88,30 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
             return reply.status(500).send(ErrorCode.InternalServerError);
         }
     });
+
+    fastify.patch(
+        "/:purchaseOrderId",
+        async function (request: FastifyRequest, reply: FastifyReply) {
+            const auth = request.headers.authorization;
+            const { purchaseOrderId } = request.params as { purchaseOrderId: string };
+            const body = request.body as { status: string };
+
+            try {
+                if (auth) {
+                    const existingPurchaseOrder = await getPurchaseOrderById(purchaseOrderId);
+                    if (!existingPurchaseOrder) {
+                        return reply.status(404).send(ErrorCode.NotFound);
+                    }
+                    const response = await updatePurchaseOrderStatus(purchaseOrderId, { status: body.status });
+                    return reply.status(200).send(response);
+                } else {
+                    return reply.status(401).send(ErrorCode.Unauthorized);
+                }
+            } catch (error: any) {
+                if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
+                    return reply.status(404).send(ErrorCode.NotFound);
+                }
+                return reply.status(500).send(ErrorCode.InternalServerError);
+            }
+        });
 }

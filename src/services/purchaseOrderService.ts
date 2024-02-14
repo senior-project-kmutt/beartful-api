@@ -62,3 +62,23 @@ export const getFreelanceWorkByFreelanceID = async (userId: string, status: stri
     throw error;
   }
 }
+
+export const getPurchaseOrderById = async (purchaseOrderId: string) => {
+  try {
+    const response = await PurchaseOrders.findOne({ _id: purchaseOrderId });
+    return response;
+  } catch (error) {
+    console.error("Error get purchase order by Id:", error);
+    throw error;
+  }
+};
+
+export const updatePurchaseOrderStatus = async (purchaseOrderId: string, updatePurchaseOrder: Object) => {
+  try {
+    await PurchaseOrders.updateOne({ _id: purchaseOrderId }, { $set: updatePurchaseOrder });
+    return updatePurchaseOrder;
+  } catch (error) {
+    console.error("Error edit artwork:", error);
+    throw error;
+  }
+};

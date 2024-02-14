@@ -18,7 +18,7 @@ export interface IPurchaseOrder {
 
 export interface IOrder {
     purchaseOrder: IPurchaseOrder,
-    artworkItem?: string[]
+    artworkItem?: string
 }
 
 import mongoose from "mongoose"
