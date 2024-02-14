@@ -37,7 +37,7 @@ export const getQuotationByCustomerId = async (customerId: string) => {
       console.error("Validation errors:", validationErrors);
       throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
     }
-    console.error("Error create artwork:", error);
+    console.error("Error get quotation:", error);
     throw error;
   }
 };

@@ -34,3 +34,31 @@ export const createPurchaseOrderItem = async (item: IPurchaseOrderItem) => {
     throw error;
   }
 };
+
+export const getCustomerPurchaseOrderByCustomerID = async (userId: string, status: string) => {
+  try {
+    let query: any = { customerId: userId };
+    if (status !== 'all') {
+      query.status = status;
+    }
+    const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });
+    return customerPurchaseOrder;
+  } catch (error) {
+    console.error("Error fetching purchaseOrder:", error);
+    throw error;
+  }
+}
+
+export const getFreelanceWorkByFreelanceID = async (userId: string, status: string) => {
+  try {
+    let query: any = { freelanceId: userId };
+    if (status !== 'all') {
+      query.status = status;
+    }
+    const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });
+    return customerPurchaseOrder;
+  } catch (error) {
+    console.error("Error fetching purchaseOrder:", error);
+    throw error;
+  }
+}
