@@ -23,6 +23,16 @@ export const createQuotation = async (quotation: IQuotation) => {
   }
 };
 
+export const getQuotationById = async (quotationId: string) => {
+  try {
+    const quotation = await Quotation.findOne({ _id: quotationId });
+    return quotation
+  } catch (error: any) {
+    console.error("Error get quotation:", error);
+    throw error;
+  }
+};
+
 export const getQuotationByCustomerId = async (customerId: string) => {
   try {
     const user = await Users.find({ _id: customerId });
