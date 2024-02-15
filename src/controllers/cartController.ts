@@ -3,6 +3,9 @@ import { ICartEdit, ICartItem } from "../models/cart";
 import { validateToken } from "../services/userService";
 import { createCartItem, deleteCart, getCartById, updateCart } from "../services/cartService";
 import { ErrorCode } from "../response/errorResponse";
+import jwt, { JwtPayload } from "jsonwebtoken";
+const SECRET_KEY =
+  "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
 interface CartId {
     cartId: string;
@@ -73,6 +76,27 @@ export default async function cartController(fastify: FastifyInstance) {
                         return reply.status(403).send(ErrorCode.Forbidden);
                     }
                     return reply.send(await deleteCart(cartId));
+                } else {
+                    return reply.status(401).send(ErrorCode.Unauthorized);
+                }
+            } catch (error) {
+                console.error(error);
+                return reply.status(500).send(ErrorCode.InternalServerError);
+            }
+        }
+    );
+
+    fastify.get(
+        "/:cartId",
+        async function (request: FastifyRequest, reply: FastifyReply) {
+            const auth = request.headers.authorization;
+            const { cartId } = request.params as CartId;
+            try {
+                if (auth) {
+                    const token = auth.split("Bearer ")[1];
+                    const decode = jwt.verify(token, SECRET_KEY) as JwtPayload;
+                    const cartItem: ICartItem = await getCartById(cartId);
+                    return reply.status(200).send(cartItem);
                 } else {
                     return reply.status(401).send(ErrorCode.Unauthorized);
                 }
