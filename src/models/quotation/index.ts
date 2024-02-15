@@ -1,8 +1,28 @@
 export interface IQuotation {
   _id: string;
   quotationNumber: string;
+  customerId: string;
+  freelanceId: string;
+  customerName: string;
+  freelanceName: string;
+  name: string;
+  benefits: string;
+  numberOfEdit: number;
+  startDate: Date;
+  endDate: Date;
+  day: number;
+  quatity: number;
+  amount: number;
+  note: string;
+  confirmQuotation: string;
+  status: string
+}
+
+export interface ICreateQuotation {
+  _id: string;
+  quotationNumber: string;
   customerUsername: string;
-  freelanceUsername: string;
+  freelanceId: string;
   customerName: string;
   freelanceName: string;
   name: string;
@@ -26,11 +46,11 @@ const quotationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    customerUsername: {
+    customerId: {
       type: String,
       required: true,
     },
-    freelanceUsername: {
+    freelanceId: {
       type: String,
       required: true,
     },

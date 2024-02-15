@@ -1,4 +1,4 @@
-import { IQuotation, Quotation } from "../models/quotation";
+import { ICreateQuotation, IQuotation, Quotation } from "../models/quotation";
 import { IUsers, Users } from "../models/user";
 
 interface IGetQuotationResponse {
@@ -7,9 +7,14 @@ interface IGetQuotationResponse {
   cartItem: IQuotation[]
 }
 
-export const createQuotation = async (quotation: IQuotation) => {
+export const createQuotation = async (quotation: ICreateQuotation) => {
   try {
-    const newQuotation = new Quotation(quotation)
+    const customerProfile = await Users.findOne({ username: quotation.customerUsername });
+    const newData = {
+      ...quotation,
+      customerId: customerProfile._id
+    } as IQuotation
+    const newQuotation = new Quotation(newData)
     await newQuotation.validate();
     const response = await newQuotation.save();
     return response;
@@ -37,7 +42,7 @@ export const getQuotationByCustomerId = async (customerId: string) => {
   try {
     const user = await Users.find({ _id: customerId });
     if (user) {
-      const quotations = await Quotation.find({customerUsername: user[0].username, status: 'inCart'}).sort({ createdAt: -1 });
+      const quotations = await Quotation.find({customerId: customerId.toString(), status: 'inCart'}).sort({ createdAt: -1 });
       const transformQuotation = await transformToICarts(quotations);
       return transformQuotation;
     }
@@ -56,8 +61,8 @@ const transformToICarts = async (quotationItems: IQuotation[]): Promise<IGetQuot
   const result: IGetQuotationResponse[] = [];
 
   for (const quotation of quotationItems) {
-      const user: IUsers = await Users.findOne({ username: quotation.freelanceUsername });
-      const existingQuotation = result.find((item) => item.freelanceId.toString() == user._id.toString());
+      const user: IUsers = await Users.findOne({ _id: quotation.freelanceId });
+      const existingQuotation = result.find((item) => item.freelanceId.toString() == quotation.freelanceId.toString());
       if (existingQuotation) {
           existingQuotation.cartItem.push(quotation);
       } else {

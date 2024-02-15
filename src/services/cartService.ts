@@ -11,7 +11,7 @@ export const createCartItem = async (userId: string, body: ICartItem) => {
             quantity: body.quantity,
             netAmount: body.amount * body.quantity,
             freelanceId: body.freelanceId,
-            artworkId: body._id,
+            artworkId: body.artworkId,
             artworkName: body.artworkName,
             checked: true
         }

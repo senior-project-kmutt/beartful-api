@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { ErrorCode } from "../response/errorResponse";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { IQuotation } from '../models/quotation';
+import { ICreateQuotation } from '../models/quotation';
 import { createQuotation, getQuotationById } from '../services/quotationService';
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
@@ -18,7 +18,7 @@ export default async function userController(fastify: FastifyInstance) {
     reply: FastifyReply
   ) {
     const auth = request.headers.authorization;
-    const body: IQuotation = request.body as IQuotation;
+    const body: ICreateQuotation = request.body as ICreateQuotation;
     if (auth) {
       try {
         const token = auth.split("Bearer ")[1];
