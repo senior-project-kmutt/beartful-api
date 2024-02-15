@@ -120,7 +120,9 @@ const transformToIFreelanceGetPurchaseOrder = async (purchaseOrders: IPurchaseOr
 export const getCustomerPurchaseOrderByCustomerID = async (userId: string, status: string) => {
   try {
     let query: any = { customerId: userId };
-    if (status !== 'all') {
+    if (status == 'pending') {
+      query.status = { $in: ['pending', 'delivered'] };
+    } else if (status !== 'all'){
       query.status = status;
     }
     const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });
@@ -135,7 +137,9 @@ export const getCustomerPurchaseOrderByCustomerID = async (userId: string, statu
 export const getFreelanceWorkByFreelanceID = async (userId: string, status: string) => {
   try {
     let query: any = { freelanceId: userId };
-    if (status !== 'all') {
+    if (status == 'pending') {
+      query.status = { $in: ['pending', 'delivered'] };
+    } else if (status !== 'all'){
       query.status = status;
     }
     const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });
