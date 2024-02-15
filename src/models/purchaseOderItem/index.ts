@@ -2,6 +2,8 @@ export interface IPurchaseOrderItem {
     _id?: string
     purchaseOrderId: string
     artworkId: string
+    name: string
+    description: string
     price: number
     quantity: number
     createdAt?: Date
@@ -16,6 +18,14 @@ const purchaseOrderItemSchema = new mongoose.Schema({
         required: true
     },
     artworkId: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    description: {
         type: String,
         required: true
     },
