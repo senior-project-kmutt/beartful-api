@@ -34,6 +34,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         const purchaseOrderItem: IPurchaseOrderItem = {
                             purchaseOrderId: "",
                             artworkId: body.artworkItem,
+                            name: existingArtwork.name,
+                            description: existingArtwork.description,
                             price: existingArtwork.price,
                             quantity: 1
                         };
