@@ -17,6 +17,12 @@ export const getUserById = async (userId: string) => {
   return user;
 };
 
+export const getUserByUsername = async (username: string) => {
+  console.log("username", username);
+  const user = await Users.find({ username: username });
+  return user;
+};
+
 export const getParticipantsInfo = async (userId: string) => {
   const user = await Users.find({ _id: userId }, {
     _id: 0,
