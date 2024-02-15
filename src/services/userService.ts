@@ -70,8 +70,7 @@ export const getArtworkByUserName = async (username: string, page?: string, page
       : Artworks.find(query);
 
     const artworks = await artworksQuery.exec();
-    const shuffledArtworks = artworks.sort(() => Math.random() - 0.5);
-    return shuffledArtworks;
+    return artworks;
   } catch (error) {
     console.error("Error fetching artworks:", error);
     throw error;
