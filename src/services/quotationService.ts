@@ -89,3 +89,13 @@ export const updateQuotationStatus = async (quotationId: string, status: string)
     throw error;
   }
 };
+
+export const deleteQuotationById = async (quotationId: string) => {
+  try {
+    const quotation = await Quotation.deleteOne({ _id: quotationId });
+    return quotation
+  } catch (error: any) {
+    console.error("Error get quotation:", error);
+    throw error;
+  }
+};
