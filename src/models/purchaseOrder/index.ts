@@ -21,7 +21,27 @@ export interface IOrder {
     artworkItem?: string
 }
 
+export interface ICustomerGetPurchaseOrder {
+    freelanceId: string
+    freelanceUsername: string
+    order: IGetOrder[]
+}
+
+export interface IFreelanceGetPurchaseOrder {
+    customerId: string
+    customerUsername: string
+    order: IGetOrder[]
+}
+
+export interface IGetOrder {
+    purchaseOrder: IPurchaseOrder
+    quotation?: IQuotation
+    purchaseOrderItem?: IPurchaseOrderItem
+}
+
 import mongoose from "mongoose"
+import { IQuotation } from "../quotation"
+import { IPurchaseOrderItem } from "../purchaseOderItem"
 
 const purchaseOrderSchema = new mongoose.Schema({
     freelanceId: {

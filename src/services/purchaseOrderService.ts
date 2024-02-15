@@ -1,5 +1,7 @@
 import { IPurchaseOrderItem, PurchaseOrderItems } from "../models/purchaseOderItem";
-import { IPurchaseOrder, PurchaseOrders } from "../models/purchaseOrder";
+import { ICustomerGetPurchaseOrder, IFreelanceGetPurchaseOrder, IGetOrder, IPurchaseOrder, PurchaseOrders } from "../models/purchaseOrder";
+import { IQuotation, Quotation } from "../models/quotation";
+import { IUsers, Users } from "../models/user";
 
 export const createOrder = async (order: IPurchaseOrder) => {
   try {
@@ -35,6 +37,86 @@ export const createPurchaseOrderItem = async (item: IPurchaseOrderItem) => {
   }
 };
 
+const transformToICustomerGetPurchaseOrder = async (purchaseOrders: IPurchaseOrder[]): Promise<ICustomerGetPurchaseOrder[]> => {
+  const result: ICustomerGetPurchaseOrder[] = [];
+
+  for (const purchaseOrder of purchaseOrders) {
+    const user: IUsers = await Users.findOne({ _id: purchaseOrder.freelanceId });
+    const freelanceUsername = user ? user.username : "Unknown";
+
+    const existingPurchaseOrder = result.find((order) => order.freelanceId === purchaseOrder.freelanceId);
+    let purchaseOderItem: IPurchaseOrderItem | undefined;
+    let quotation: IQuotation | undefined;
+    let orders: IGetOrder | undefined;
+    if (purchaseOrder.type === 'readyMade') {
+      purchaseOderItem = await PurchaseOrderItems.findOne({ purchaseOrderId: purchaseOrder._id });
+      orders = {
+        purchaseOrder: purchaseOrder,
+        purchaseOrderItem: purchaseOderItem
+      }
+    } else if (purchaseOrder.type === 'hired') {
+      quotation = await Quotation.findOne({ _id: purchaseOrder.quotationId });
+      orders = {
+        purchaseOrder: purchaseOrder,
+        quotation: quotation
+      }
+    }
+
+    if (orders) {
+      if (existingPurchaseOrder) {
+        existingPurchaseOrder.order.push(orders);
+      } else {
+        result.push({
+          freelanceId: purchaseOrder.freelanceId || '',
+          freelanceUsername: freelanceUsername,
+          order: [orders],
+        });
+      }
+    }
+  }
+  return result;
+}
+
+const transformToIFreelanceGetPurchaseOrder = async (purchaseOrders: IPurchaseOrder[]): Promise<IFreelanceGetPurchaseOrder[]> => {
+  const result: IFreelanceGetPurchaseOrder[] = [];
+
+  for (const purchaseOrder of purchaseOrders) {
+    const user: IUsers = await Users.findOne({ _id: purchaseOrder.customerId });
+    const customerUsername = user ? user.username : "Unknown";
+
+    const existingPurchaseOrder = result.find((order) => order.customerId === purchaseOrder.customerId);
+    let purchaseOderItem: IPurchaseOrderItem | undefined;
+    let quotation: IQuotation | undefined;
+    let orders: IGetOrder | undefined;
+    if (purchaseOrder.type === 'readyMade') {
+      purchaseOderItem = await PurchaseOrderItems.findOne({ purchaseOrderId: purchaseOrder._id });
+      orders = {
+        purchaseOrder: purchaseOrder,
+        purchaseOrderItem: purchaseOderItem
+      }
+    } else if (purchaseOrder.type === 'hired') {
+      quotation = await Quotation.findOne({ _id: purchaseOrder.quotationId });
+      orders = {
+        purchaseOrder: purchaseOrder,
+        quotation: quotation
+      }
+    }
+
+    if (orders) {
+      if (existingPurchaseOrder) {
+        existingPurchaseOrder.order.push(orders);
+      } else {
+        result.push({
+          customerId: purchaseOrder.customerId || '',
+          customerUsername: customerUsername,
+          order: [orders],
+        });
+      }
+    }
+  }
+  return result;
+}
+
 export const getCustomerPurchaseOrderByCustomerID = async (userId: string, status: string) => {
   try {
     let query: any = { customerId: userId };
@@ -42,7 +124,8 @@ export const getCustomerPurchaseOrderByCustomerID = async (userId: string, statu
       query.status = status;
     }
     const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });
-    return customerPurchaseOrder;
+    const transformedPurchaseOrder = await transformToICustomerGetPurchaseOrder(customerPurchaseOrder);
+    return transformedPurchaseOrder;
   } catch (error) {
     console.error("Error fetching purchaseOrder:", error);
     throw error;
@@ -56,7 +139,8 @@ export const getFreelanceWorkByFreelanceID = async (userId: string, status: stri
       query.status = status;
     }
     const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });
-    return customerPurchaseOrder;
+    const transformedPurchaseOrder = await transformToIFreelanceGetPurchaseOrder(customerPurchaseOrder);
+    return transformedPurchaseOrder;
   } catch (error) {
     console.error("Error fetching purchaseOrder:", error);
     throw error;
