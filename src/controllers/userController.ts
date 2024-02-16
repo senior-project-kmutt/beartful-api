@@ -5,7 +5,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, validateToken } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
 import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID } from '../services/purchaseOrderService';
@@ -96,6 +96,19 @@ export default async function userController(fastify: FastifyInstance) {
 
       } else {
         return reply.status(401).send(ErrorCode.Unauthorized);
+      }
+    }
+  );
+
+  fastify.get(
+    "/freelanceInfo/:userId",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const params = request.params as {userId:string};
+      try {
+        const user = await getUserById(params.userId);
+        return reply.status(200).send(user[0]);
+      } catch (error) {
+        reply.status(500).send(ErrorCode.InternalServerError)
       }
     }
   );
