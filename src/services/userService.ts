@@ -72,8 +72,8 @@ export const getArtworkByUserName = async (username: string, page?: string, page
       query = { ...query, type: type }
     }
     const artworksQuery = pageSizes > 0
-      ? Artworks.find(query).skip((pages - 1) * pageSizes).limit(pageSizes)
-      : Artworks.find(query);
+    ? Artworks.find(query).sort({ createdAt: -1 }).skip((pages - 1) * pageSizes).limit(pageSizes)
+    : Artworks.find(query).sort({ createdAt: -1 });
 
     const artworks = await artworksQuery.exec();
     return artworks;
