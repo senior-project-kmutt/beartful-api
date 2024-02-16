@@ -41,7 +41,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         };
 
                         const purchaseOrder: IPurchaseOrder = {
-                            freelanceId: decode.id,
+                            freelanceId: body.purchaseOrder.freelanceId,
                             customerId: body.purchaseOrder.customerId,
                             quotationId: body.purchaseOrder.quotationId,
                             status: body.purchaseOrder.status,
@@ -65,7 +65,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                     }
                 } else {
                     const purchaseOrder: IPurchaseOrder = {
-                        freelanceId: decode.id,
+                        freelanceId: body.purchaseOrder.freelanceId,
                         customerId: body.purchaseOrder.customerId,
                         quotationId: body.purchaseOrder.quotationId,
                         status: body.purchaseOrder.status,
