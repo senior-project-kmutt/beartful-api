@@ -5,7 +5,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
 import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID } from '../services/purchaseOrderService';
@@ -96,6 +96,22 @@ export default async function userController(fastify: FastifyInstance) {
 
       } else {
         return reply.status(401).send(ErrorCode.Unauthorized);
+      }
+    }
+  );
+
+  fastify.get(
+    "/freelance/:username",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      try {
+        const params = request.params as IParamsGetByUsername;
+        const user = await getUserByUsername(params.username)
+        return reply.status(200).send(user[0]);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
+          return reply.status(404).send(ErrorCode.NotFound);
+        }
+        return reply.status(500).send(ErrorCode.InternalServerError);
       }
     }
   );
