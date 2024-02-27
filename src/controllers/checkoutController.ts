@@ -46,20 +46,22 @@ export default async function checkoutController(fastify: FastifyInstance) {
     reply: FastifyReply
   ) {
     try {
+      const { amount } = request.body as ICreditCardPayment;
       // const { email, name, amount, token } = request.body as ICreditCardPayment;
       const sources = await omise.sources.create({
-        amount: 120000,
+        amount: amount * 100,
         currency: 'THB',
         type: 'promptpay'
       });
       const charge = await omise.charges.create({
-        amount: 120000,
+        amount: amount * 100,
         currency: "THB",
         source: sources.id
       })
-      reply.send(charge);
-    } catch (err) {
+      reply.status(200).send(charge);
+    } catch (err: any) {
       console.log(err);
+      reply.code(400).send({ error: err.message });
     }
   });
   // POST /api/checkout
