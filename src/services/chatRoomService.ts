@@ -54,6 +54,9 @@ const transformPaticipants = async (participants: string[]) => {
   const transformPaticipants: string[] = []
   const participantPromises = participants.map(async participant => {
     const user: IUsers = await Users.findOne({ username: participant });
+    if (!user) {
+      throw new Error(`User '${participant}' not found`);
+    }
     const userId = String(user._id);
     transformPaticipants.push(userId);
   })

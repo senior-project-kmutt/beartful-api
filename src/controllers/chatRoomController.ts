@@ -117,8 +117,8 @@ export default async function chatRoomController(fastify: FastifyInstance) {
         return reply.status(401).send(ErrorCode.Unauthorized);
       }
     } catch (error) {
-      if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
-        return reply.status(404).send(ErrorCode.NotFound);
+      if (error instanceof Error && error.message.includes("not found")) {
+        return reply.status(404).send(ErrorCode.ParticipantsNotFound);
       }
       return reply.status(500).send(ErrorCode.InternalServerError);
     }
