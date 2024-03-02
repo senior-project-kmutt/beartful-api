@@ -34,16 +34,15 @@ export const getLastMessagesByChatRoom = async (chatRoomId: string) => {
 }
 
 export const createChatRoom = async (participants: string[]) => {
-  const newPaticipants = await transformPaticipants(participants);
+  const newParticipants = await transformPaticipants(participants);
   const existingChatRoom = await ChatRoom.findOne({
-    participants: newPaticipants
+    participants: { $all: newParticipants }
   })
   if (existingChatRoom) {
     return existingChatRoom
-
   } else {
     const newChatRoom = new ChatRoom({
-      participants: newPaticipants
+      participants: newParticipants
     });
     await newChatRoom.validate();
     const response = await newChatRoom.save();
