@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { IOrder, IPurchaseOrder } from "../models/purchaseOrder";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { createOrder, createPurchaseOrderItem, getPurchaseOrderById, updatePurchaseOrderStatus } from "../services/purchaseOrderService";
+import { createOrder, createPurchaseOrderItem, createTransaction, getPurchaseOrderById, updatePurchaseOrderStatus } from "../services/purchaseOrderService";
 import { getArtworkById } from "../services/artworkService";
 import { validateToken } from "../services/userService";
 import { IPurchaseOrderItem } from "../models/purchaseOderItem";
@@ -31,6 +31,11 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         if (!existingArtwork) {
                             return reply.status(404).send(ErrorCode.NotFound);
                         }
+                        let transactionId = null;
+                        if (body.purchaseOrder.chargeId) {
+                            const res = await createTransaction('paid', body.purchaseOrder.chargeId)
+                            transactionId = res._id;
+                        }
                         const purchaseOrderItem: IPurchaseOrderItem = {
                             purchaseOrderId: "",
                             artworkId: body.artworkItem,
@@ -52,6 +57,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             paymentMethod: body.purchaseOrder.paymentMethod,
                             note: body.purchaseOrder.note,
                             type: body.purchaseOrder.type,
+                            transactionId: transactionId
                         };
                         const response = await createOrder(purchaseOrder);
                         purchaseOrderItem.purchaseOrderId = response._id;
@@ -64,6 +70,11 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         return reply.status(500).send(ErrorCode.InternalServerError);
                     }
                 } else {
+                    let transactionId = null;
+                    if (body.purchaseOrder.chargeId) {
+                        const res = await createTransaction('paid', body.purchaseOrder.chargeId)
+                        transactionId = res._id
+                    }
                     const purchaseOrder: IPurchaseOrder = {
                         freelanceId: body.purchaseOrder.freelanceId,
                         customerId: body.purchaseOrder.customerId,
@@ -76,6 +87,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         paymentMethod: body.purchaseOrder.paymentMethod,
                         note: body.purchaseOrder.note,
                         type: body.purchaseOrder.type,
+                        transactionId: transactionId
                     };
                     if (body.purchaseOrder.quotationId) {
                         const response = await createOrder(purchaseOrder);

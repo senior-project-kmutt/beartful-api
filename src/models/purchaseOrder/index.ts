@@ -12,6 +12,8 @@ export interface IPurchaseOrder {
     estimateTimeFinished?: Date
     note: string
     type: string
+    chargeId?: string
+    transactionId?: string
     createdAt?: Date
     updatedAt?: Date
 }
@@ -87,6 +89,10 @@ const purchaseOrderSchema = new mongoose.Schema({
         required: true
     },
     type: {
+        type: String,
+        required: true
+    },
+    transactionId: {
         type: String,
         required: true
     },
