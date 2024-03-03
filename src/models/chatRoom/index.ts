@@ -1,6 +1,5 @@
 export interface IChatRoom {
   _id: string;
-  chatRoomId: number;
   participants: string[] | IParticipant[];
 }
 
@@ -18,10 +17,6 @@ import mongoose from "mongoose";
 
 const chatRoomSchema = new mongoose.Schema(
   {
-    chatRoomId: {
-      type: Number,
-      required: true,
-    },
     participants: {
       type: Array,
       required: true,
