@@ -5,7 +5,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
 import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID } from '../services/purchaseOrderService';
@@ -119,7 +119,7 @@ export default async function userController(fastify: FastifyInstance) {
   fastify.get(
     "/freelanceInfo/:userId",
     async function (request: FastifyRequest, reply: FastifyReply) {
-      const params = request.params as {userId:string};
+      const params = request.params as { userId: string };
       try {
         const user = await getUserById(params.userId);
         return reply.status(200).send(user[0]);
@@ -363,6 +363,32 @@ export default async function userController(fastify: FastifyInstance) {
         }
 
       } catch {
+        return reply.status(500).send(ErrorCode.InternalServerError);
+      }
+    }
+  );
+
+  fastify.delete(
+    "/:userId",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const { userId } = request.params as { userId: string };
+      try {
+        if (auth) {
+          const token = auth.split("Bearer ")[1];
+          const userDecode = jwt.decode(token) as JwtPayload;
+          if (userDecode.id != userId) {
+            return reply.status(401).send(ErrorCode.Unauthorized);
+          }
+          const response = await deleteUser(userId);
+          return reply.status(200).send(response);
+        } else {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
+          return reply.status(404).send(ErrorCode.NotFound);
+        }
         return reply.status(500).send(ErrorCode.InternalServerError);
       }
     }
