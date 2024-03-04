@@ -13,15 +13,15 @@ export default async function accountController(fastify: FastifyInstance) {
         reply: FastifyReply
     ) {
         try {
-            // const { email, name, type, bank_account } = request.body as IBankAccountTransfer;
+            const { email, name, bank_account } = request.body as IBankAccountTransfer;
             const recp = await omise.recipients.create({
-                name: 'CHANANYA SINPHICHIT',
-                email: 'mottdy@gmail.com',
+                name: name,
+                email: email,
                 type: 'individual',
                 bank_account: {
-                    brand: 'bbl',
-                    number: '1234567890',
-                    name: 'CHANANYA SINPHICHIT',
+                    brand: bank_account.brand,
+                    number: bank_account.number,
+                    name: bank_account.name,
                 },
             });
             reply.send(recp)
@@ -36,7 +36,6 @@ export default async function accountController(fastify: FastifyInstance) {
     ) {
         try {
             const recp = await omise.recipients.retrieve('recp_test_5xf7lugyuikhxlwgfjc');
-            console.log(recp);
             reply.send(recp)
         } catch (err) {
             reply.send(err)
@@ -52,8 +51,8 @@ export default async function accountController(fastify: FastifyInstance) {
             const transfer = await omise.transfers.create({
                 amount: '140000',
                 recipient: 'recp_test_5xf7lugyuikhxlwgfjc',
-              });
-              reply.send(transfer)
+            });
+            reply.send(transfer)
         } catch (err) {
             reply.send(err);
         }

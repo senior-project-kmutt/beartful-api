@@ -4,6 +4,8 @@ import { Artworks, IArtworks } from "../models/artwork";
 import { ErrorCode, ErrorResponse } from "../response/errorResponse";
 import { FastifyReply } from "fastify";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { IBankAccountTransfer } from "../models/payment";
+import { createRecipient } from "./omiseService";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -18,7 +20,6 @@ export const getUserById = async (userId: string) => {
 };
 
 export const getUserByUsername = async (username: string) => {
-  console.log("username", username);
   const user = await Users.find({ username: username });
   return user;
 };
@@ -65,15 +66,14 @@ export const getArtworkByUserName = async (username: string, page?: string, page
   const pages = page ? parseInt(page) : 1;
   const pageSizes = pageSize ? parseInt(pageSize) : 0;
   const user: IUsers = await Users.findOne({ username: username })
-  console.log(user._id);
   try {
     let query: { freelanceId: string, type?: string } = { freelanceId: user._id };
     if (type) {
       query = { ...query, type: type }
     }
     const artworksQuery = pageSizes > 0
-    ? Artworks.find(query).sort({ createdAt: -1 }).skip((pages - 1) * pageSizes).limit(pageSizes)
-    : Artworks.find(query).sort({ createdAt: -1 });
+      ? Artworks.find(query).sort({ createdAt: -1 }).skip((pages - 1) * pageSizes).limit(pageSizes)
+      : Artworks.find(query).sort({ createdAt: -1 });
 
     const artworks = await artworksQuery.exec();
     return artworks;
@@ -99,6 +99,7 @@ export const transformUserForSign = async (user: IUsers) => {
 export const insertUser = async (user: any, reply: FastifyReply) => {
   try {
     let response;
+    let recipientId = null;
     if (user.role === "customer") {
       const validationResult = await validateCustomerField(user);
       if (validationResult) {
@@ -112,7 +113,27 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
       if (validationResult) {
         return reply.status(400).send(validationResult);
       }
-      response = await Users.create(user);
+      const newUser: IUserFreelance = user
+      const requestData: IBankAccountTransfer = {
+        email: newUser.email,
+        type: 'individual',
+        name: newUser.username,
+        bank_account: {
+          brand: newUser.bankAccount.bankName,
+          number: newUser.bankAccount.bankAccountNumber,
+          name: newUser.bankAccount.bankAccountName,
+        },
+      };
+
+      try {
+        recipientId = await createRecipient(requestData);
+      } catch (error) {
+        console.error(error);
+      }
+      if (user.role === "freelance") {
+        newUser.recipientId = recipientId;
+      }
+      response = await Users.create(newUser);
     }
     return response
   } catch (error) {
@@ -128,11 +149,11 @@ export const insertUser = async (user: any, reply: FastifyReply) => {
 
 export const updateProfile = async (userId: string, updateProfile: any) => {
   try {
-      const response = await Users.updateOne({ _id: userId }, { $set: updateProfile });
-      return response;
+    const response = await Users.updateOne({ _id: userId }, { $set: updateProfile });
+    return response;
   } catch (error) {
-      console.error("Error edit user:", error);
-      throw error;
+    console.error("Error edit user:", error);
+    throw error;
   }
 };
 
