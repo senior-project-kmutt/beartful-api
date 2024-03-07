@@ -6,8 +6,8 @@ export interface ICreditCardPayment {
 }
 
 export interface IBankAccountTransfer {
-    name: string;
-    type: string;
+    name?: string;
+    type?: string;
     email: string;
     bank_account: IBankAccount;
 }

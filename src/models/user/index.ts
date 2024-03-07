@@ -16,7 +16,7 @@ export interface IUserLogin {
 }
 
 export interface IUserFreelance extends IUsers {
-    recipientId: string
+    recipientId: string;
     dateOfBirth: Date;
     address: string;
     education: Array<IUserEducation[]>;
