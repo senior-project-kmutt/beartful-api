@@ -45,7 +45,7 @@ export default async function checkoutController(fastify: FastifyInstance) {
       const { email, name, amount, token } = request.body as ICreditCardPayment;
 
       const charge = await omise.charges.create({
-        amount: amount,
+        amount: amount * 100,
         currency: "THB",
         source: token
       })
