@@ -39,6 +39,23 @@ export interface IGetOrder {
     purchaseOrderItem?: IPurchaseOrderItem
 }
 
+export interface IPurchaseOrderDetail {
+    freelance: IFreelance
+    customer: ICustomer
+    order: IGetOrder
+}
+
+export interface IFreelance {
+    firstname: string
+    lastname: string
+    address: string
+}
+
+export interface ICustomer {
+    firstname: string
+    lastname: string
+}
+
 import mongoose from "mongoose"
 import { IQuotation } from "../quotation"
 import { IPurchaseOrderItem } from "../purchaseOderItem"

@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { IOrder, IPurchaseOrder } from "../models/purchaseOrder";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { createOrder, createPurchaseOrderItem, getPurchaseOrderById, updatePurchaseOrderStatus } from "../services/purchaseOrderService";
+import { createOrder, createPurchaseOrderItem, getPurchaseOrderById, getPurchaseOrderDetailById, transformToIGetPurchaseOrder, updatePurchaseOrderStatus } from "../services/purchaseOrderService";
 import { getArtworkById } from "../services/artworkService";
 import { validateToken } from "../services/userService";
 import { IPurchaseOrderItem } from "../models/purchaseOderItem";
@@ -109,6 +109,32 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         return reply.status(404).send(ErrorCode.NotFound);
                     }
                     const response = await updatePurchaseOrderStatus(purchaseOrderId, { status: body.status });
+                    return reply.status(200).send(response);
+                } else {
+                    return reply.status(401).send(ErrorCode.Unauthorized);
+                }
+            } catch (error: any) {
+                if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
+                    return reply.status(404).send(ErrorCode.NotFound);
+                }
+                return reply.status(500).send(ErrorCode.InternalServerError);
+            }
+        });
+
+
+    fastify.get(
+        "/:purchaseOrderId",
+        async function (request: FastifyRequest, reply: FastifyReply) {
+            const auth = request.headers.authorization;
+            const { purchaseOrderId } = request.params as { purchaseOrderId: string };
+
+            try {
+                if (auth) {
+                    const existingPurchaseOrder = await getPurchaseOrderById(purchaseOrderId);
+                    if (!existingPurchaseOrder) {
+                        return reply.status(404).send(ErrorCode.NotFound);
+                    }
+                    const response = await getPurchaseOrderDetailById(purchaseOrderId)
                     return reply.status(200).send(response);
                 } else {
                     return reply.status(401).send(ErrorCode.Unauthorized);
