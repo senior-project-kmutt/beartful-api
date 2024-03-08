@@ -1,6 +1,7 @@
 import { IPurchaseOrderItem, PurchaseOrderItems } from "../models/purchaseOderItem";
 import { ICustomerGetPurchaseOrder, IFreelanceGetPurchaseOrder, IGetOrder, IPurchaseOrder, PurchaseOrders } from "../models/purchaseOrder";
 import { IQuotation, Quotation } from "../models/quotation";
+import { Transactions } from "../models/transaction";
 import { IUsers, Users } from "../models/user";
 
 export const createOrder = async (order: IPurchaseOrder) => {
@@ -33,6 +34,24 @@ export const createPurchaseOrderItem = async (item: IPurchaseOrderItem) => {
       throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
     }
     console.error("Error create purchase order item:", error);
+    throw error;
+  }
+};
+
+export const createTransaction = async (type: string, omiseTransactionId: string) => {
+  try {
+    const newTransaction = new Transactions({ type: type, omiseTransactionId: omiseTransactionId });
+    await newTransaction.validate();
+    const response = await newTransaction.save();
+    console.log(response);
+    return response;
+  } catch (error: any) {
+    if (error.errors) {
+      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+      console.error("Validation errors:", validationErrors);
+      throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+    }
+    console.error("Error create transaction:", error);
     throw error;
   }
 };
@@ -122,7 +141,7 @@ export const getCustomerPurchaseOrderByCustomerID = async (userId: string, statu
     let query: any = { customerId: userId };
     if (status == 'pending') {
       query.status = { $in: ['pending', 'delivered'] };
-    } else if (status !== 'all'){
+    } else if (status !== 'all') {
       query.status = status;
     }
     const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });
@@ -139,7 +158,7 @@ export const getFreelanceWorkByFreelanceID = async (userId: string, status: stri
     let query: any = { freelanceId: userId };
     if (status == 'pending') {
       query.status = { $in: ['pending', 'delivered'] };
-    } else if (status !== 'all'){
+    } else if (status !== 'all') {
       query.status = status;
     }
     const customerPurchaseOrder = await PurchaseOrders.find(query).sort({ createdAt: -1 });

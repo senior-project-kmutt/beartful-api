@@ -12,6 +12,9 @@ export interface IPurchaseOrder {
     estimateTimeFinished?: Date
     note: string
     type: string
+    chargeId?: string
+    transactionId?: string
+    fee?: number
     createdAt?: Date
     updatedAt?: Date
 }
@@ -67,6 +70,10 @@ const purchaseOrderSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    fee: {
+        type: Number,
+        required: false
+    },
     netAmount: {
         type: Number,
         required: true
@@ -87,6 +94,10 @@ const purchaseOrderSchema = new mongoose.Schema({
         required: true
     },
     type: {
+        type: String,
+        required: true
+    },
+    transactionId: {
         type: String,
         required: true
     },

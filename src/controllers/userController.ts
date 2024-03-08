@@ -1,4 +1,4 @@
-import { IUserAward, IUserBankAccount, IUserEducation, IUserExperience, IUserSkillAndLanguage } from './../models/user/index';
+import { IUserAward, IUserBankAccount, IUserEducation, IUserExperience, IUserFreelance, IUserSkillAndLanguage } from './../models/user/index';
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { IUserLogin, IUsers, Users } from "../models/user";
 import { ErrorCode } from "../response/errorResponse";
@@ -9,6 +9,8 @@ import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transfo
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
 import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID } from '../services/purchaseOrderService';
+import { updateRecipient } from '../services/omiseService';
+import { IBankAccountTransfer } from '../models/payment';
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -228,6 +230,16 @@ export default async function userController(fastify: FastifyInstance) {
         try {
           jwt.verify(token, SECRET_KEY) as JwtPayload;
           const response = await updateProfile(params.userId, body);
+          const user: IUserFreelance[] = await getUserById(params.userId)
+          const recipientInfo: IBankAccountTransfer = {
+            email: user[0].email,
+            bank_account: {
+              brand: body.bankAccount.bankName,
+              number: body.bankAccount.bankAccountNumber,
+              name: body.bankAccount.bankAccountName,
+            }
+          }
+          await updateRecipient(user[0].recipientId, recipientInfo)
           return reply.status(200).send(response[0]);
         } catch (error) {
           reply.status(401).send(ErrorCode.Unauthorized)
@@ -271,7 +283,6 @@ export default async function userController(fastify: FastifyInstance) {
       const auth = request.headers.authorization;
       const params = request.params as IParamsGetChatRoom;
       const body: IUserUpdatePersonal = request.body as IUserUpdatePersonal;
-      console.log(body);
 
       if (auth) {
         const token = auth.split("Bearer ")[1];
