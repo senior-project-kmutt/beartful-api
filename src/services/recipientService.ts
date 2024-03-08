@@ -15,7 +15,6 @@ export const updateRecipient = async (recipientId: string, amount: number) => {
             amount: oldAmount += amount
         }
 
-        console.log(recipientId);
         const response = await Recipients.updateOne({ recipientId: recipientId }, { $set: newAmount });
         return response;
     } catch (error) {
