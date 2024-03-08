@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { createArtwork, deleteArtwork, getArtwork, getArtworkById, updateArtwork } from "../services/artworkService";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
-import { Artworks, IArtworkAddForm, IArtworkEditForm, IArtworks } from "../models/artwork";
+import { IArtworkAddForm, IArtworkEditForm, IArtworks } from "../models/artwork";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 

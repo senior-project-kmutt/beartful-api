@@ -1,9 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { ICreditCardPayment } from "../models/payment";
-// const omise = require("omise")({
-//     publicKey: process.env.OMISE_PUBLIC_KEY,
-//     secretKey: process.env.OMISE_SECRET_KEY
-//   });
+import axios from "axios";
 
 const omise = require("omise")({
   publicKey: "pkey_test_5x1jqlva0xb31kk0ubw",
@@ -26,18 +23,17 @@ export default async function checkoutController(fastify: FastifyInstance) {
       });
 
       const charge = await omise.charges.create({
-        amount: amount,
+        amount: amount * 100,
         currency: "thb",
         customer: customer.id
       });
 
-      reply.send({
-        authorizeUri: charge.authorize_uri,
-        status: charge.status,
-        amount: charge.amount / 100
+      reply.status(200).send({
+        charge
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
+      reply.code(400).send({ error: err.message });
     }
   });
   // POST /api/checkout
@@ -46,20 +42,32 @@ export default async function checkoutController(fastify: FastifyInstance) {
     reply: FastifyReply
   ) {
     try {
-      // const { email, name, amount, token } = request.body as ICreditCardPayment;
-      const sources = await omise.sources.create({
-        amount: 120000,
-        currency: 'THB',
-        type: 'promptpay'
-      });
+      const { email, name, amount, token } = request.body as ICreditCardPayment;
+
       const charge = await omise.charges.create({
-        amount: 120000,
+        amount: amount * 100,
         currency: "THB",
-        source: sources.id
+        source: token
       })
-      reply.send(charge);
-    } catch (err) {
+
+      const secretKey = 'skey_test_5x1jr0hpfmne5jj68on'
+
+      const headers = {
+        Authorization: `Basic ${Buffer.from(secretKey + ':').toString('base64')}`,
+      };
+      const url = `https://api.omise.co/charges/${charge.id}/mark_as_paid`;
+
+      try {
+        const response = await axios.post(url, {}, { headers });
+        console.log('Response:', response.data);
+      } catch (error: any) {
+        console.error('Error:', error.message);
+      }
+
+      reply.status(200).send(charge);
+    } catch (err: any) {
       console.log(err);
+      reply.code(400).send({ error: err.message });
     }
   });
   // POST /api/checkout

@@ -7,7 +7,7 @@ export interface IUsers {
     lastname: string;
     profileImage: string;
     role: string;
-    phoneNumber: string;   
+    phoneNumber: string;
 }
 
 export interface IUserLogin {
@@ -16,6 +16,7 @@ export interface IUserLogin {
 }
 
 export interface IUserFreelance extends IUsers {
+    recipientId: string;
     dateOfBirth: Date;
     address: string;
     education: Array<IUserEducation[]>;
@@ -56,7 +57,8 @@ export interface IUserAward {
 export interface IUserBankAccount {
     bankName: string;
     bankAccountNumber: string;
-    bankAccountImage: string
+    bankAccountImage: string;
+    bankAccountName: string;
 }
 
 import mongoose from "mongoose"
@@ -125,6 +127,10 @@ const userSchema = new mongoose.Schema({
     },
     bankAccount: {
         type: Object,
+        required: false
+    },
+    recipientId: {
+        type: String,
         required: false
     }
 }, {

@@ -3,6 +3,7 @@ import { ICustomerGetPurchaseOrder, IFreelanceGetPurchaseOrder, IGetOrder, IPurc
 import { IQuotation, Quotation } from "../models/quotation";
 import { IUserFreelance, IUsers, Users } from "../models/user";
 import { getUserById } from "./userService";
+import { Transactions } from "../models/transaction";
 
 export const createOrder = async (order: IPurchaseOrder) => {
   try {
@@ -34,6 +35,24 @@ export const createPurchaseOrderItem = async (item: IPurchaseOrderItem) => {
       throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
     }
     console.error("Error create purchase order item:", error);
+    throw error;
+  }
+};
+
+export const createTransaction = async (type: string, omiseTransactionId: string) => {
+  try {
+    const newTransaction = new Transactions({ type: type, omiseTransactionId: omiseTransactionId });
+    await newTransaction.validate();
+    const response = await newTransaction.save();
+    console.log(response);
+    return response;
+  } catch (error: any) {
+    if (error.errors) {
+      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+      console.error("Validation errors:", validationErrors);
+      throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+    }
+    console.error("Error create transaction:", error);
     throw error;
   }
 };
