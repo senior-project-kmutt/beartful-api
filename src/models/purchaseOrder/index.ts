@@ -14,6 +14,7 @@ export interface IPurchaseOrder {
     type: string
     chargeId?: string
     transactionId?: string
+    fee?: number
     createdAt?: Date
     updatedAt?: Date
 }
@@ -68,6 +69,10 @@ const purchaseOrderSchema = new mongoose.Schema({
     vat: {
         type: Number,
         required: true
+    },
+    fee: {
+        type: Number,
+        required: false
     },
     netAmount: {
         type: Number,

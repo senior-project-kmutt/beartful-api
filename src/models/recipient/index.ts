@@ -1,7 +1,7 @@
 export interface IRecipient {
     _id: string;
     recipientId: string;
-    amount: string
+    amount: number
 }
 
 import mongoose from "mongoose";
@@ -13,7 +13,7 @@ const recipientSchema = new mongoose.Schema(
             required: true,
         },
         amount: {
-            type: String,
+            type: Number,
             required: true,
         },
     },

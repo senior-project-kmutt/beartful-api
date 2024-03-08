@@ -1,12 +1,13 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { IOrder, IPurchaseOrder } from "../models/purchaseOrder";
+import { IFreelanceGetPurchaseOrder, IOrder, IPurchaseOrder } from "../models/purchaseOrder";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ErrorCode } from "../response/errorResponse";
 import { createOrder, createPurchaseOrderItem, createTransaction, getPurchaseOrderById, updatePurchaseOrderStatus } from "../services/purchaseOrderService";
 import { getArtworkById } from "../services/artworkService";
-import { validateToken } from "../services/userService";
 import { IPurchaseOrderItem } from "../models/purchaseOderItem";
 import { updateQuotationStatus } from "../services/quotationService";
+import { updateRecipient } from "../services/recipientService";
+import { getUserById } from "../services/userService";
 const SECRET_KEY =
     "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -24,7 +25,6 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                 if (decode.role != "customer") {
                     return reply.status(401).send(ErrorCode.Unauthorized);
                 }
-
                 if (body.purchaseOrder.type === "readyMade" && body.artworkItem) {
                     try {
                         const existingArtwork = await getArtworkById(body.artworkItem);
@@ -44,6 +44,12 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             price: existingArtwork.price,
                             quantity: 1
                         };
+                        const calculateFee = () => {
+                            const fee = (3.65 * body.purchaseOrder.amount) / 10
+                            const feeVat = fee * 0.07
+                            const feeVatFixed = parseFloat(feeVat.toFixed(2));
+                            return feeVatFixed
+                        }
 
                         const purchaseOrder: IPurchaseOrder = {
                             freelanceId: body.purchaseOrder.freelanceId,
@@ -52,7 +58,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             status: body.purchaseOrder.status,
                             amount: body.purchaseOrder.amount,
                             vat: 0,
-                            netAmount: body.purchaseOrder.netAmount,
+                            fee: calculateFee(),
+                            netAmount: body.purchaseOrder.amount - calculateFee(),
                             confirmedDate: new Date(),
                             paymentMethod: body.purchaseOrder.paymentMethod,
                             note: body.purchaseOrder.note,
@@ -62,6 +69,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         const response = await createOrder(purchaseOrder);
                         purchaseOrderItem.purchaseOrderId = response._id;
                         await createPurchaseOrderItem(purchaseOrderItem);
+                        const user = await getUserById(body.purchaseOrder.freelanceId!)
+                        await updateRecipient(user[0].recipientId, body.purchaseOrder.amount - calculateFee())
                         return reply.status(200).send(response);
                     } catch (error: any) {
                         if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
@@ -75,6 +84,14 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         const res = await createTransaction('paid', body.purchaseOrder.chargeId)
                         transactionId = res._id
                     }
+
+                    const calculateFee = () => {
+                        const fee = (3.65 * body.purchaseOrder.amount) / 10
+                        const feeVat = fee * 0.07
+                        const feeVatFixed = parseFloat(feeVat.toFixed(2));
+                        return feeVatFixed
+                    }
+
                     const purchaseOrder: IPurchaseOrder = {
                         freelanceId: body.purchaseOrder.freelanceId,
                         customerId: body.purchaseOrder.customerId,
@@ -82,7 +99,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         status: body.purchaseOrder.status,
                         amount: body.purchaseOrder.amount,
                         vat: 0,
-                        netAmount: body.purchaseOrder.amount,
+                        fee: calculateFee(),
+                        netAmount: body.purchaseOrder.amount - calculateFee(),
                         confirmedDate: new Date(),
                         paymentMethod: body.purchaseOrder.paymentMethod,
                         note: body.purchaseOrder.note,
@@ -92,6 +110,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                     if (body.purchaseOrder.quotationId) {
                         const response = await createOrder(purchaseOrder);
                         updateQuotationStatus(body.purchaseOrder.quotationId, 'ordered')
+                        const user = await getUserById(body.purchaseOrder.freelanceId!)
+                        await updateRecipient(user[0].recipientId, body.purchaseOrder.amount - calculateFee())
                         return reply.status(200).send(response);
                     }
                 }
