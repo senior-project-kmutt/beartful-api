@@ -28,4 +28,5 @@ export const ErrorCode = {
   },
   NotFound: new ErrorResponse("E005", "Not Found"),
   ValidationFail: new ErrorResponse("E006", "Validation Fail"),
+  ParticipantsNotFound: new ErrorResponse("E005", "Participants Not Found")
 };

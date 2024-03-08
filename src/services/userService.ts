@@ -6,6 +6,10 @@ import { FastifyReply } from "fastify";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IBankAccountTransfer } from "../models/payment";
 import { createRecipient } from "./omiseService";
+import { Carts } from "../models/cart";
+import { PurchaseOrders } from "../models/purchaseOrder";
+import { ChatMessages } from "../models/chatMessages";
+import { Quotation } from "../models/quotation";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -196,6 +200,43 @@ const validateFreelanceField = (request: any) => {
     return ErrorCode.MissingRequiredField(missingFields.join(', '))
   }
 }
+
+export const deleteUser = async (userId: string) => {
+  try {
+    //find user
+    const user = await getUserById(userId);
+    if (user && user[0].role === 'customer') {
+      //delete cart and purchase and quotation
+      await Carts.deleteMany({customerId: userId});
+      await PurchaseOrders.deleteMany({customerId: userId});
+      await Quotation.deleteMany({customerId: userId});
+    }
+
+    if (user && user[0].role === 'freelance') {
+      //delete artwork and purchase and quotation and cart
+      await Artworks.deleteMany({freelanceId: userId})
+      await PurchaseOrders.deleteMany({freelanceId: userId});
+      await Quotation.deleteMany({freelanceId: userId});
+      await Carts.deleteMany({freelanceId: userId});
+    }
+    
+    //delete chat room and chat message
+    const chatRooms: IChatRoom[] = await getChatRoomByUserId(userId);
+    chatRooms.map(async chatRoom => {
+      await deleteChatRoomAndChatMessage(chatRoom._id)
+    })
+
+    await Users.deleteOne({_id: userId});
+  } catch (error) {
+    console.error("Error edit artwork:", error);
+    throw error;
+  }
+};
+
+export const deleteChatRoomAndChatMessage = async (chatRoomId: string) => {
+  await ChatMessages.deleteMany({chat_room_id: chatRoomId});
+  await ChatRoom.deleteOne({_id: chatRoomId});
+} 
 
 export const validateToken = (auth: string) => {
   try {

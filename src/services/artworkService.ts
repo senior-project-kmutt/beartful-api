@@ -1,4 +1,5 @@
 import { Artworks, IArtworkEditForm, IArtworks } from "../models/artwork";
+import { Carts } from "../models/cart";
 
 export const getArtwork = async (page?: string, pageSize?: string, type?: string) => {
   const pages = page ? parseInt(page) : 1;
@@ -52,6 +53,7 @@ export const createArtwork = async (artwork: IArtworks) => {
 export const deleteArtwork = async (artworkId: string) => {
   try {
     const response = await Artworks.deleteOne({ _id: artworkId });
+    await Carts.deleteMany({artworkId: artworkId})
     return response;
   } catch (error) {
     console.error("Error delete artwork:", error);
