@@ -1,3 +1,4 @@
+import { IPurchaseOrder, PurchaseOrders } from './../models/purchaseOrder/index';
 import { IUserFreelance, IUsers, Users } from "../models/user";
 import { ChatRoom, IChatRoom, IParticipant } from "../models/chatRoom";
 import { Artworks, IArtworks } from "../models/artwork";
@@ -7,9 +8,9 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { IBankAccountTransfer } from "../models/payment";
 import { createRecipient } from "./omiseService";
 import { Carts } from "../models/cart";
-import { PurchaseOrders } from "../models/purchaseOrder";
 import { ChatMessages } from "../models/chatMessages";
 import { Quotation } from "../models/quotation";
+import { PurchaseOrderItems } from "../models/purchaseOderItem";
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -208,14 +209,20 @@ export const deleteUser = async (userId: string) => {
     if (user && user[0].role === 'customer') {
       //delete cart and purchase and quotation
       await Carts.deleteMany({customerId: userId});
-      await PurchaseOrders.deleteMany({customerId: userId});
+      const purchaseOrders = await PurchaseOrders.find({customerId: userId})
+      purchaseOrders.map(async (purchaseOrder: IPurchaseOrder) => {
+        await deletePurchaseOrder(purchaseOrder)
+      })
       await Quotation.deleteMany({customerId: userId});
     }
 
     if (user && user[0].role === 'freelance') {
       //delete artwork and purchase and quotation and cart
       await Artworks.deleteMany({freelanceId: userId})
-      await PurchaseOrders.deleteMany({freelanceId: userId});
+      const purchaseOrders = await PurchaseOrders.find({freelanceId: userId})
+      purchaseOrders.map(async (purchaseOrder: IPurchaseOrder) => {
+        await deletePurchaseOrder(purchaseOrder)
+      })
       await Quotation.deleteMany({freelanceId: userId});
       await Carts.deleteMany({freelanceId: userId});
     }
@@ -236,6 +243,18 @@ export const deleteUser = async (userId: string) => {
 export const deleteChatRoomAndChatMessage = async (chatRoomId: string) => {
   await ChatMessages.deleteMany({chat_room_id: chatRoomId});
   await ChatRoom.deleteOne({_id: chatRoomId});
+} 
+
+export const deletePurchaseOrder = async (purchaseOrder: IPurchaseOrder) => {
+  if (purchaseOrder.type === 'hired') {
+    await Quotation.deleteOne({_id: purchaseOrder.quotationId})
+    await PurchaseOrders.deleteOne({_id: purchaseOrder._id})
+  }
+
+  if (purchaseOrder.type === 'readyMade') {
+    await PurchaseOrderItems.deleteOne({purchaseOrderId: purchaseOrder._id})
+    await PurchaseOrders.deleteOne({_id: purchaseOrder._id})
+  }
 } 
 
 export const validateToken = (auth: string) => {
