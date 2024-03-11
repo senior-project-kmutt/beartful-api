@@ -8,9 +8,11 @@ import { IChatRoom } from "../models/chatRoom";
 import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
-import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID } from '../services/purchaseOrderService';
+import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID, getTransactionByFreelanceId } from '../services/purchaseOrderService';
 import { updateRecipient } from '../services/omiseService';
 import { IBankAccountTransfer } from '../models/payment';
+import { ITransaction } from '../models/transaction';
+import { getRecipientById } from '../services/recipientService';
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -41,6 +43,13 @@ interface IUserUpdatePersonal {
   phoneNumber: string,
   dateOfBirth?: IUserAward,
   address?: string
+}
+
+interface IGetUserDashboard {
+  recipientId: string;
+  amount: number;
+  bankAccount: IUserBankAccount;
+  transaction: ITransaction[];
 }
 
 export default async function userController(fastify: FastifyInstance) {
@@ -401,6 +410,40 @@ export default async function userController(fastify: FastifyInstance) {
           return reply.status(404).send(ErrorCode.NotFound);
         }
         return reply.status(500).send(ErrorCode.InternalServerError);
+      }
+    }
+  );
+
+  fastify.get(
+    "/:userId/dashboard",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const params = request.params as { userId: string; };
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        const test = jwt.decode(token) as JwtPayload;
+        if (test.id != params.userId || test.role != 'freelance') {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+          const user = await getUserById(params.userId);
+          const recipient = await getRecipientById(user[0].recipientId)
+          const transaction = await getTransactionByFreelanceId(user[0]._id)
+
+          let data: IGetUserDashboard = {
+            recipientId: user[0].recipientId,
+            amount: recipient.amount,
+            bankAccount: user[0].bankAccount,
+            transaction: transaction
+          }
+          return reply.status(200).send(data);
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized)
+        }
+
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
       }
     }
   );

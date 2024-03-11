@@ -22,3 +22,16 @@ export const updateRecipient = async (recipientId: string, amount: number) => {
         throw error;
     }
 };
+
+export const getRecipientById = async (recipientId: string) => {
+    try {
+        const recipient = await Recipients.findOne({ recipientId: recipientId });
+        if (!recipient) {
+            throw new Error('Recipient not found');
+        }
+        return recipient;
+    } catch (error) {
+        console.error("Error update recipient:", error);
+        throw error;
+    }
+};

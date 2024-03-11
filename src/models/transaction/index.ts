@@ -1,7 +1,9 @@
 export interface ITransaction {
     _id: string;
     type: string;
-    omiseTransactionId: string
+    omiseTransactionId: string;
+    amount: number;
+    freelanceId: string;
 }
 
 import mongoose from "mongoose";

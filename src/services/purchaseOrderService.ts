@@ -3,7 +3,7 @@ import { ICustomerGetPurchaseOrder, IFreelanceGetPurchaseOrder, IGetOrder, IPurc
 import { IQuotation, Quotation } from "../models/quotation";
 import { IUserFreelance, IUsers, Users } from "../models/user";
 import { getUserById } from "./userService";
-import { Transactions } from "../models/transaction";
+import { ITransaction, Transactions } from "../models/transaction";
 
 export const createOrder = async (order: IPurchaseOrder) => {
   try {
@@ -52,6 +52,19 @@ export const createTransaction = async (type: string, omiseTransactionId: string
       throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
     }
     console.error("Error create transaction:", error);
+    throw error;
+  }
+};
+
+export const getTransactionByFreelanceId = async (freelanceId: string) => {
+  try {
+    const transaction: ITransaction[] = await Transactions.find({ freelanceId: freelanceId }).sort({ createdAt: -1 });
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+    return transaction;
+  } catch (error) {
+    console.error("Error get transaction:", error);
     throw error;
   }
 };
