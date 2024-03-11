@@ -31,9 +31,15 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         if (!existingArtwork) {
                             return reply.status(404).send(ErrorCode.NotFound);
                         }
+                        const calculateFee = () => {
+                            const fee = (3.65 * body.purchaseOrder.amount) / 10
+                            const feeVat = fee * 0.07
+                            const feeVatFixed = parseFloat(feeVat.toFixed(2));
+                            return feeVatFixed
+                        }
                         let transactionId = null;
-                        if (body.purchaseOrder.chargeId) {
-                            const res = await createTransaction('paid', body.purchaseOrder.chargeId)
+                        if (body.purchaseOrder.chargeId && body.purchaseOrder.freelanceId) {
+                            const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee())
                             transactionId = res._id;
                         }
                         const purchaseOrderItem: IPurchaseOrderItem = {
@@ -44,12 +50,6 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             price: existingArtwork.price,
                             quantity: 1
                         };
-                        const calculateFee = () => {
-                            const fee = (3.65 * body.purchaseOrder.amount) / 10
-                            const feeVat = fee * 0.07
-                            const feeVatFixed = parseFloat(feeVat.toFixed(2));
-                            return feeVatFixed
-                        }
 
                         const purchaseOrder: IPurchaseOrder = {
                             freelanceId: body.purchaseOrder.freelanceId,
@@ -80,16 +80,17 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                     }
                 } else {
                     let transactionId = null;
-                    if (body.purchaseOrder.chargeId) {
-                        const res = await createTransaction('paid', body.purchaseOrder.chargeId)
-                        transactionId = res._id
-                    }
 
                     const calculateFee = () => {
                         const fee = (3.65 * body.purchaseOrder.amount) / 10
                         const feeVat = fee * 0.07
                         const feeVatFixed = parseFloat(feeVat.toFixed(2));
                         return feeVatFixed
+                    }
+
+                    if (body.purchaseOrder.chargeId && body.purchaseOrder.freelanceId) {
+                        const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee())
+                        transactionId = res._id;
                     }
 
                     const purchaseOrder: IPurchaseOrder = {
