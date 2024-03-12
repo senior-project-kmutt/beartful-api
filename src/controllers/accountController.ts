@@ -4,6 +4,7 @@ import { ErrorCode } from "../response/errorResponse";
 import { getUserById, validateToken } from "../services/userService";
 import { createTransaction } from "../services/purchaseOrderService";
 import { updateRecipient } from "../services/recipientService";
+import { markasSentandPaidTransfer } from "../services/omiseService";
 
 const omise = require("omise")({
     secretKey: "skey_test_5x1jr0hpfmne5jj68on"
@@ -66,6 +67,7 @@ export default async function accountController(fastify: FastifyInstance) {
                     amount: amount * 100,
                     recipient: user[0].recipientId,
                 });
+                await markasSentandPaidTransfer(transfer.id)
                 if (decode.id) {
                     await createTransaction('transfer', transfer.id, decode.id, amount)
                     await updateRecipient(user[0].recipientId, amount, 'transfer')
