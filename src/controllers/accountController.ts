@@ -2,6 +2,8 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { IBankAccountTransfer } from "../models/payment";
 import { ErrorCode } from "../response/errorResponse";
 import { getUserById, validateToken } from "../services/userService";
+import { createTransaction } from "../services/purchaseOrderService";
+import { updateRecipient } from "../services/recipientService";
 
 const omise = require("omise")({
     secretKey: "skey_test_5x1jr0hpfmne5jj68on"
@@ -48,7 +50,7 @@ export default async function accountController(fastify: FastifyInstance) {
         reply: FastifyReply
     ) {
         const auth = request.headers.authorization;
-        const { amount } = request.body as { amount: string };
+        const { amount } = request.body as { amount: number };
 
         if (auth) {
             try {
@@ -61,32 +63,20 @@ export default async function accountController(fastify: FastifyInstance) {
                 }
                 const user = await getUserById(decode.id)
                 const transfer = await omise.transfers.create({
-                    amount: amount,
-                    recipient: user.recipient,
+                    amount: amount * 100,
+                    recipient: user[0].recipientId,
                 });
+                if (decode.id) {
+                    await createTransaction('transfer', transfer.id, decode.id, amount)
+                    await updateRecipient(user[0].recipientId, amount, 'transfer')
+                }
                 return reply.status(200).send(transfer);
             } catch (error: any) {
-                return reply.status(401).send(ErrorCode.Unauthorized);
+                reply.code(400).send({ error: error.message });
             }
         } else {
             return reply.status(500).send(ErrorCode.InternalServerError);
         }
     });
 
-     // POST /api/freelance
-    //  fastify.post("/transfer", async function (
-    //     request: FastifyRequest,
-    //     reply: FastifyReply
-    // ) {
-    //     try {
-    //         // const { email, name, type, bank_account } = request.body as IBankAccountTransfer;
-    //         const transfer = await omise.transfers.create({
-    //             amount: '140000',
-    //             recipient: 'recp_test_5xf7lugyuikhxlwgfjc',
-    //         });
-    //         reply.send(transfer)
-    //     } catch (err) {
-    //         reply.send(err);
-    //     }
-    // });
 }

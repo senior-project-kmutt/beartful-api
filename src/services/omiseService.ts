@@ -8,12 +8,15 @@ const omise = require("omise")({
 export const createRecipient = async (data: IBankAccountTransfer) => {
     try {
         const recp = await omise.recipients.create(data);
-        verifyRecipient(recp.id)
         const newRecipient = {
             recipientId: recp.id,
             amount: 0
         }
         await Recipients.create(newRecipient);
+        if (recp.verified == false) {
+            await verifyRecipient(recp.id)
+        }
+
         return recp.id
     } catch (err) {
         console.log(err);
@@ -28,30 +31,16 @@ export const verifyRecipient = async (recipientId: string) => {
     const url = `https://api.omise.co/recipients/${recipientId}/verify`;
 
     try {
-        const response = await axios.patch(url, {}, { headers });
+        await axios.patch(url, {}, { headers });
     } catch (error: any) {
         console.error('Error:', error.message);
     }
 }
 
-export const updateRecipient = async (recipientId:string, data: IBankAccountTransfer) => {
-    console.log(data);
-    console.log(recipientId);
+export const updateRecipient = async (recipientId: string, data: IBankAccountTransfer) => {
     try {
-        const recp = await omise.recipients.update(recipientId,data);
+        const recp = await omise.recipients.update(recipientId, data);
         verifyRecipient(recipientId)
-        console.log(recp);
-        // const recipientInfo: IBankAccountTransfer = {
-        //       email: user.email,
-        //       bank_account: {
-        //         brand: user.bankAccount.bankName,
-        //         number: user.bankAccount.bankAccountNumber,
-        //         name: user.bankAccount.bankAccountName,
-        //       }
-        //     }
-        // console.log(data);
-        // await omise.recipients.update(recipientId,data);
-
     } catch (error) {
         console.error('Error updating recipient:', error);
     }

@@ -69,8 +69,6 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         const response = await createOrder(purchaseOrder);
                         purchaseOrderItem.purchaseOrderId = response._id;
                         await createPurchaseOrderItem(purchaseOrderItem);
-                        const user = await getUserById(body.purchaseOrder.freelanceId!)
-                        await updateRecipient(user[0].recipientId, body.purchaseOrder.amount - calculateFee())
                         return reply.status(200).send(response);
                     } catch (error: any) {
                         if (error instanceof Error && error.message.includes("Cast to ObjectId failed")) {
@@ -111,8 +109,6 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                     if (body.purchaseOrder.quotationId) {
                         const response = await createOrder(purchaseOrder);
                         updateQuotationStatus(body.purchaseOrder.quotationId, 'ordered')
-                        const user = await getUserById(body.purchaseOrder.freelanceId!)
-                        await updateRecipient(user[0].recipientId, body.purchaseOrder.amount - calculateFee())
                         return reply.status(200).send(response);
                     }
                 }
@@ -142,6 +138,10 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         return reply.status(404).send(ErrorCode.NotFound);
                     }
                     const response = await updatePurchaseOrderStatus(purchaseOrderId, { status: body.status });
+                    if (body.status == 'success') {
+                        const user = await getUserById(existingPurchaseOrder.freelanceId)
+                        await updateRecipient(user[0].recipientId, existingPurchaseOrder.netAmount, 'paid')
+                    }
                     return reply.status(200).send(response);
                 } else {
                     return reply.status(401).send(ErrorCode.Unauthorized);

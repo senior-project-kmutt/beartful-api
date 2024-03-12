@@ -1,6 +1,6 @@
 import { Recipients } from "../models/recipient";
 
-export const updateRecipient = async (recipientId: string, amount: number) => {
+export const updateRecipient = async (recipientId: string, amount: number, type: string) => {
     try {
         const recipient = await Recipients.findOne({ recipientId: recipientId });
 
@@ -9,12 +9,7 @@ export const updateRecipient = async (recipientId: string, amount: number) => {
         }
 
         let oldAmount: number = recipient.amount;
-
-
-        const newAmount = {
-            amount: oldAmount += amount
-        }
-
+        const newAmount = { amount: type === 'paid' ? oldAmount + amount : oldAmount - amount };
         const response = await Recipients.updateOne({ recipientId: recipientId }, { $set: newAmount });
         return response;
     } catch (error) {
