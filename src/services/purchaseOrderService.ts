@@ -39,7 +39,7 @@ export const createPurchaseOrderItem = async (item: IPurchaseOrderItem) => {
   }
 };
 
-export const createTransaction = async (type: string, omiseTransactionId: string, freelanceId: string, amount: number, name:string ) => {
+export const createTransaction = async (type: string, omiseTransactionId: string, freelanceId: string, amount: number, name: string) => {
   try {
     const newTransaction = new Transactions({ type: type, omiseTransactionId: omiseTransactionId, freelanceId: freelanceId, amount: amount, from: name });
     await newTransaction.validate();
@@ -58,7 +58,33 @@ export const createTransaction = async (type: string, omiseTransactionId: string
 
 export const getTransactionByFreelanceId = async (freelanceId: string) => {
   try {
-    const transaction: ITransaction[] = await Transactions.find({ freelanceId: freelanceId }).sort({ createdAt: -1 });
+    const transaction: ITransaction[] = await Transactions.find({ freelanceId: freelanceId, type: 'transfer' }).sort({ createdAt: -1 });
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+    return transaction;
+  } catch (error) {
+    console.error("Error get transaction:", error);
+    throw error;
+  }
+};
+
+export const getPurchaseOrderByFreelanceId = async (freelanceId: string) => {
+  try {
+    const purchaseOrder: IPurchaseOrder[] = await PurchaseOrders.find({ freelanceId: freelanceId, status: 'success' }).sort({ createdAt: -1 });
+    if (!purchaseOrder) {
+      throw new Error('Transaction not found');
+    }
+    return purchaseOrder;
+  } catch (error) {
+    console.error("Error get transaction:", error);
+    throw error;
+  }
+};
+
+export const getTransactionByTransactionId = async (transactionId: string) => {
+  try {
+    const transaction: ITransaction = await Transactions.findOne({ _id: transactionId });
     if (!transaction) {
       throw new Error('Transaction not found');
     }

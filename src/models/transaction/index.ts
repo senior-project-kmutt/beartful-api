@@ -1,13 +1,16 @@
 export interface ITransaction {
+    transaction: globalThis.Date;
     _id: string;
     type: string;
     omiseTransactionId: string;
     amount: number;
     freelanceId: string;
     from?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
-import mongoose from "mongoose";
+import mongoose, { Date } from "mongoose";
 
 const transactionSchema = new mongoose.Schema(
     {

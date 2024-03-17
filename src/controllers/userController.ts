@@ -8,7 +8,7 @@ import { IChatRoom } from "../models/chatRoom";
 import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
-import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID, getTransactionByFreelanceId } from '../services/purchaseOrderService';
+import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID, getPurchaseOrderByFreelanceId, getTransactionByFreelanceId, getTransactionByTransactionId } from '../services/purchaseOrderService';
 import { updateRecipient } from '../services/omiseService';
 import { IBankAccountTransfer } from '../models/payment';
 import { ITransaction } from '../models/transaction';
@@ -429,13 +429,30 @@ export default async function userController(fastify: FastifyInstance) {
           jwt.verify(token, SECRET_KEY) as JwtPayload;
           const user = await getUserById(params.userId);
           const recipient = await getRecipientById(user[0].recipientId)
-          const transaction = await getTransactionByFreelanceId(user[0]._id)
+          const transferTransaction = await getTransactionByFreelanceId(user[0]._id)
+          const paidTransaction: ITransaction[] = []
+          const purchaseOrder = await getPurchaseOrderByFreelanceId(user[0]._id)
+
+          await Promise.all(purchaseOrder.map(async order => {
+            if (order.transactionId && order.updatedAt) {
+              const transaction: ITransaction = await getTransactionByTransactionId(order.transactionId);
+              transaction.createdAt = new Date(order.updatedAt) as any;
+              paidTransaction.push(transaction);
+            }
+          }));
+
+          const combinedTransactions: ITransaction[] = transferTransaction.concat(paidTransaction);
+          combinedTransactions.sort((a, b) => {
+            const dateA = new Date(a.createdAt as any).getTime();
+            const dateB = new Date(b.createdAt as any).getTime();
+            return dateB - dateA;
+          });
 
           let data: IGetUserDashboard = {
             recipientId: user[0].recipientId,
             amount: recipient.amount,
             bankAccount: user[0].bankAccount,
-            transaction: transaction
+            transaction: combinedTransactions
           }
           return reply.status(200).send(data);
         } catch (error) {
