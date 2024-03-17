@@ -39,9 +39,9 @@ export const createPurchaseOrderItem = async (item: IPurchaseOrderItem) => {
   }
 };
 
-export const createTransaction = async (type: string, omiseTransactionId: string, freelanceId: string, amount: number) => {
+export const createTransaction = async (type: string, omiseTransactionId: string, freelanceId: string, amount: number, name:string ) => {
   try {
-    const newTransaction = new Transactions({ type: type, omiseTransactionId: omiseTransactionId, freelanceId: freelanceId, amount: amount });
+    const newTransaction = new Transactions({ type: type, omiseTransactionId: omiseTransactionId, freelanceId: freelanceId, amount: amount, from: name });
     await newTransaction.validate();
     const response = await newTransaction.save();
     return response;

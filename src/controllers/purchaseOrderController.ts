@@ -39,7 +39,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         }
                         let transactionId = null;
                         if (body.purchaseOrder.chargeId && body.purchaseOrder.freelanceId) {
-                            const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee())
+                            const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee(), decode.username )
                             transactionId = res._id;
                         }
                         const purchaseOrderItem: IPurchaseOrderItem = {
@@ -87,7 +87,7 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                     }
 
                     if (body.purchaseOrder.chargeId && body.purchaseOrder.freelanceId) {
-                        const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee())
+                        const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee(), decode.username )
                         transactionId = res._id;
                     }
 

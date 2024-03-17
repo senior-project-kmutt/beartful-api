@@ -4,6 +4,7 @@ export interface ITransaction {
     omiseTransactionId: string;
     amount: number;
     freelanceId: string;
+    from?: string;
 }
 
 import mongoose from "mongoose";
@@ -25,6 +26,10 @@ const transactionSchema = new mongoose.Schema(
         amount: {
             type: Number,
             required: true,
+        },
+        from: {
+            type: String,
+            required: false,
         }
     },
     {

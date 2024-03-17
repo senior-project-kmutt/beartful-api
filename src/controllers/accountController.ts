@@ -69,7 +69,7 @@ export default async function accountController(fastify: FastifyInstance) {
                 });
                 await markasSentandPaidTransfer(transfer.id)
                 if (decode.id) {
-                    await createTransaction('transfer', transfer.id, decode.id, amount)
+                    await createTransaction('transfer', transfer.id, decode.id, amount, decode.username)
                     await updateRecipient(user[0].recipientId, amount, 'transfer')
                 }
                 return reply.status(200).send(transfer);
