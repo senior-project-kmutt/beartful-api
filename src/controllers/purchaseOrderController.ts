@@ -32,14 +32,13 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             return reply.status(404).send(ErrorCode.NotFound);
                         }
                         const calculateFee = () => {
-                            const fee = (3.65 * body.purchaseOrder.amount) / 10
-                            const feeVat = fee * 0.07
-                            const feeVatFixed = parseFloat(feeVat.toFixed(2));
+                            const fee = (0.1 * body.purchaseOrder.amount)
+                            const feeVatFixed = parseFloat(fee.toFixed(2));
                             return feeVatFixed
                         }
                         let transactionId = null;
                         if (body.purchaseOrder.chargeId && body.purchaseOrder.freelanceId) {
-                            const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee(), decode.username )
+                            const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee(), decode.username)
                             transactionId = res._id;
                         }
                         const purchaseOrderItem: IPurchaseOrderItem = {
@@ -80,14 +79,13 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                     let transactionId = null;
 
                     const calculateFee = () => {
-                        const fee = (3.65 * body.purchaseOrder.amount) / 10
-                        const feeVat = fee * 0.07
-                        const feeVatFixed = parseFloat(feeVat.toFixed(2));
+                        const fee = (0.1 * body.purchaseOrder.amount)
+                        const feeVatFixed = parseFloat(fee.toFixed(2));
                         return feeVatFixed
                     }
 
                     if (body.purchaseOrder.chargeId && body.purchaseOrder.freelanceId) {
-                        const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee(), decode.username )
+                        const res = await createTransaction('paid', body.purchaseOrder.chargeId, body.purchaseOrder.freelanceId, body.purchaseOrder.amount - calculateFee(), decode.username)
                         transactionId = res._id;
                     }
 
