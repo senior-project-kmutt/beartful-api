@@ -45,6 +45,10 @@ interface IUserUpdatePersonal {
   address?: string
 }
 
+interface IUserUpdatePassword {
+  password: string
+}
+
 interface IGetUserDashboard {
   recipientId: string;
   amount: number;
@@ -292,6 +296,33 @@ export default async function userController(fastify: FastifyInstance) {
       const auth = request.headers.authorization;
       const params = request.params as IParamsGetChatRoom;
       const body: IUserUpdatePersonal = request.body as IUserUpdatePersonal;
+
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        const userDecode = jwt.decode(token) as JwtPayload;
+        if (userDecode.id != params.userId) {
+          return reply.status(401).send(ErrorCode.Unauthorized);
+        }
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+          const response = await updateProfile(params.userId, body);
+          return reply.status(200).send(response[0]);
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized)
+        }
+
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
+      }
+    }
+  );
+
+  fastify.patch(
+    "/:userId/password",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const params = request.params as IParamsGetChatRoom;
+      const body: IUserUpdatePassword = request.body as IUserUpdatePassword;
 
       if (auth) {
         const token = auth.split("Bearer ")[1];
