@@ -19,6 +19,34 @@ export const getUser = async () => {
   return users;
 };
 
+export const getAllUsers = async (page?: string, pageSize?: string, role?: string) => {
+  const currentPage = page ? parseInt(page) : 1;
+  const size = pageSize ? parseInt(pageSize) : 10;
+
+  try {
+    let query = {};
+    if (role) {
+      query = { role: role }
+    }
+    const totalUsers = await Users.countDocuments(query);
+    const totalPages = Math.ceil(totalUsers / size);
+    const usersQuery = Users.find(query)
+      .skip((currentPage - 1) * size)
+      .limit(size);
+
+    const users = await usersQuery.exec();
+    const response = {
+      users: users,
+      totalPages: totalPages,
+      currentPage: currentPage
+    };
+    return response;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
 export const getUserById = async (userId: string) => {
   const user = await Users.find({ _id: userId });
   return user;

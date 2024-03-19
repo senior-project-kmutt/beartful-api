@@ -5,7 +5,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser, getAllUsers } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
 import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID, getPurchaseOrderByFreelanceId, getTransactionByFreelanceId, getTransactionByTransactionId } from '../services/purchaseOrderService';
@@ -58,10 +58,23 @@ interface IGetUserDashboard {
 
 export default async function userController(fastify: FastifyInstance) {
   // GET /api/v1/user
+  // fastify.get(
+  //   "/",
+  //   async function (request: FastifyRequest, reply: FastifyReply) {
+  //     const users = await getUser();
+  //     reply.send(users);
+  //   }
+  // );
+
   fastify.get(
     "/",
     async function (request: FastifyRequest, reply: FastifyReply) {
-      const users = await getUser();
+      const { page, pageSize, role } = request.query as {
+        page: string;
+        pageSize: string;
+        role: string;
+      };
+      const users = await getAllUsers(page, pageSize, role);
       reply.send(users);
     }
   );
