@@ -28,6 +28,7 @@ export const getAllUsers = async (page?: string, pageSize?: string, role?: strin
     if (role) {
       query = { role: role }
     }
+    const count = await Users.countDocuments(query);
     const totalUsers = await Users.countDocuments(query);
     const totalPages = Math.ceil(totalUsers / size);
     const usersQuery = Users.find(query)
@@ -37,6 +38,7 @@ export const getAllUsers = async (page?: string, pageSize?: string, role?: strin
     const users = await usersQuery.exec();
     const response = {
       users: users,
+      count: count,
       totalPages: totalPages,
       currentPage: currentPage
     };
