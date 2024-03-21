@@ -5,7 +5,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser, getAllUsers } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser, getAllUsers, getFreelanceReviews, getFreelanceAverageScore } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
 import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID, getPurchaseOrderByFreelanceId, getTransactionByFreelanceId, getTransactionByTransactionId } from '../services/purchaseOrderService';
@@ -505,6 +505,40 @@ export default async function userController(fastify: FastifyInstance) {
 
       } else {
         return reply.status(401).send(ErrorCode.Unauthorized);
+      }
+    }
+  );
+
+  fastify.get(
+    "/freelance/:username/reviews",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const params = request.params as { username: string; };
+      try {
+        const user = (await getUserByUsername(params.username))[0];
+        if (!user) {
+          return reply.status(404).send(ErrorCode.NotFound);
+        }
+        const response = await getFreelanceReviews(user._id)
+        return reply.status(200).send(response);
+      } catch (error) {
+        return reply.status(500).send(ErrorCode.InternalServerError);
+      }
+    }
+  );
+
+  fastify.get(
+    "/freelance/:username/reviews/averageScore",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const params = request.params as { username: string; };
+      try {
+        const user = (await getUserByUsername(params.username))[0];
+        if (!user) {
+          return reply.status(404).send(ErrorCode.NotFound);
+        }
+        const response = await getFreelanceAverageScore(user._id)
+        return reply.status(200).send(response);
+      } catch (error) {
+        return reply.status(500).send(ErrorCode.InternalServerError);
       }
     }
   );

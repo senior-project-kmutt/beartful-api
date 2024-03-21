@@ -63,7 +63,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                             paymentMethod: body.purchaseOrder.paymentMethod,
                             note: body.purchaseOrder.note,
                             type: body.purchaseOrder.type,
-                            transactionId: transactionId
+                            transactionId: transactionId,
+                            isReview: false
                         };
                         const response = await createOrder(purchaseOrder);
                         purchaseOrderItem.purchaseOrderId = response._id;
@@ -102,7 +103,8 @@ export default async function purchaseOrderController(fastify: FastifyInstance) 
                         paymentMethod: body.purchaseOrder.paymentMethod,
                         note: body.purchaseOrder.note,
                         type: body.purchaseOrder.type,
-                        transactionId: transactionId
+                        transactionId: transactionId,
+                        isReview: false
                     };
                     if (body.purchaseOrder.quotationId) {
                         const response = await createOrder(purchaseOrder);

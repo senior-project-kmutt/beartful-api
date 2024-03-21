@@ -278,3 +278,13 @@ export const getPurchaseOrderDetailById = async (purchaseOrderId: string) => {
     throw error;
   }
 };
+
+export const updatePurchaseOrderReviewStatus = async (purchaseOrderId: string, reviewStatus: boolean) => {
+  try {
+    const response = await PurchaseOrders.updateOne({ _id: purchaseOrderId }, { $set: { isReview: reviewStatus } });
+    return response
+  } catch (error) {
+    console.error("Error edit artwork:", error);
+    throw error;
+  }
+};

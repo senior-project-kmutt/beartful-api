@@ -11,6 +11,7 @@ import { Carts } from "../models/cart";
 import { ChatMessages } from "../models/chatMessages";
 import { Quotation } from "../models/quotation";
 import { PurchaseOrderItems } from "../models/purchaseOderItem";
+import { IGetFreelanceReview, IReview, Review } from '../models/review';
 const SECRET_KEY =
   "1aaf3ffe4cf3112d2d198d738780317402cf3b67fd340975ec8fcf8fdfec007b";
 
@@ -285,7 +286,44 @@ export const deletePurchaseOrder = async (purchaseOrder: IPurchaseOrder) => {
     await PurchaseOrderItems.deleteOne({purchaseOrderId: purchaseOrder._id})
     await PurchaseOrders.deleteOne({_id: purchaseOrder._id})
   }
-} 
+}
+
+export const getFreelanceReviews = async (freelanceId: string) => {
+  const freelanceReviews = await Review.find({ reviewTo: freelanceId }).sort({ createdAt: -1 });
+  const transformData: IGetFreelanceReview[] = [];
+
+  for (const review of freelanceReviews) {
+    const reviewerInfo = (await getUserById(review.reviewBy))[0];
+    const transformReviewer = {
+      profileImage: reviewerInfo.profileImage,
+      username: reviewerInfo.username
+    };
+    const transformReviewData = {
+      score: review.score,
+      comment: review.comment,
+      reviewerInfo: transformReviewer,
+      createdAt: review.createdAt
+    };
+    transformData.push(transformReviewData);
+  }
+
+  return transformData;
+}
+
+export const getFreelanceAverageScore = async (freelanceId: string) => {
+  const freelanceReviews: IReview[] = await Review.find({ reviewTo: freelanceId })
+  if (freelanceReviews.length === 0) {
+    return 0;
+  }
+  const totalScore: number = freelanceReviews.reduce((acc, review) => acc + review.score, 0);
+  // Calculate the average score
+  const averageScore: number = totalScore / freelanceReviews.length;
+  // Round the average score to 1 decimal place
+  const roundedAverageScore: number = parseFloat(averageScore.toFixed(1));
+  return roundedAverageScore;
+
+}
+
 
 export const validateToken = (auth: string) => {
   try {
