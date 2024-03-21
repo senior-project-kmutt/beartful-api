@@ -3,6 +3,7 @@ import { ErrorCode } from "../response/errorResponse";
 import { IReview } from '../models/review';
 import { createNewReview } from "../services/reviewService";
 import { validateToken } from "../services/userService";
+import { updatePurchaseOrderReviewStatus } from "../services/purchaseOrderService";
 
 export default async function userController(fastify: FastifyInstance) {
 
@@ -18,7 +19,8 @@ export default async function userController(fastify: FastifyInstance) {
           if (!decode.id) {
             return reply.status(401).send(ErrorCode.Unauthorized);
           }
-          const response = await createNewReview(body)
+          const response = await createNewReview(body);
+          await updatePurchaseOrderReviewStatus(body.purchaseOrderId, true);
           return reply.status(200).send(response);
         } else {
           return reply.status(401).send(ErrorCode.Unauthorized);
