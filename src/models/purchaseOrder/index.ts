@@ -15,6 +15,7 @@ export interface IPurchaseOrder {
     chargeId?: string
     transactionId?: string
     fee?: number
+    isReview: boolean;
     createdAt?: Date
     updatedAt?: Date
 }
@@ -116,6 +117,10 @@ const purchaseOrderSchema = new mongoose.Schema({
     },
     transactionId: {
         type: String,
+        required: true
+    },
+    isReview: {
+        type: Boolean,
         required: true
     },
 }, {
