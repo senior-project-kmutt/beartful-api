@@ -4,6 +4,19 @@ export interface IReview {
   comment?: string;
   reviewBy: string;
   reviewTo: string;
+  createdAt: Date
+}
+
+export interface IGetFreelanceReview {
+  score: number;
+  comment?: string;
+  reviewerInfo: IReviewerInfo;
+  createdAt: Date
+}
+
+export interface IReviewerInfo {
+  profileImage: string;
+  username: string
 }
 
 import mongoose from "mongoose";
