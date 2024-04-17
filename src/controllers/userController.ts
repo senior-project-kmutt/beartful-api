@@ -5,7 +5,7 @@ import { ErrorCode } from "../response/errorResponse";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IChatRoom } from "../models/chatRoom";
-import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser, getAllUsers, getFreelanceReviews, getFreelanceAverageScore } from "../services/userService";
+import { getArtworkByUserName, getChatRoomByUserId, getUser, insertUser, transformUserForSign, getUserById, updateProfile, getUserByUsername, deleteUser, getAllUsers, getFreelanceReviews, getFreelanceAverageScore, getFreelanceByKeyword } from "../services/userService";
 import { getCustomerCartByUserId, getCustomerCartReviewOrderByUserId } from "../services/cartService";
 import { getQuotationByCustomerId } from '../services/quotationService';
 import { getCustomerPurchaseOrderByCustomerID, getFreelanceWorkByFreelanceID, getPurchaseOrderByFreelanceId, getTransactionByFreelanceId, getTransactionByTransactionId } from '../services/purchaseOrderService';
@@ -542,4 +542,25 @@ export default async function userController(fastify: FastifyInstance) {
       }
     }
   );
+
+  fastify.get(
+    "/search/freelance",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const auth = request.headers.authorization;
+      const { keyword } = request.query as { keyword: string };
+      if (auth) {
+        const token = auth.split("Bearer ")[1];
+        try {
+          jwt.verify(token, SECRET_KEY) as JwtPayload;
+          const users = await getFreelanceByKeyword(keyword);
+          return reply.status(200).send(users);
+        } catch (error) {
+          reply.status(401).send(ErrorCode.Unauthorized);
+        }
+      } else {
+        return reply.status(401).send(ErrorCode.Unauthorized);
+      }
+    }
+  );
+  
 }

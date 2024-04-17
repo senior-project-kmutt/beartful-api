@@ -324,6 +324,26 @@ export const getFreelanceAverageScore = async (freelanceId: string) => {
 
 }
 
+export const getFreelanceByKeyword = async (keyword: string) => {
+  const users = await Users.find(
+    {
+      $and: [
+        {
+          $or: [
+            { "username": { "$regex": String(keyword), "$options": "i" } },
+            { "firstname": { "$regex": String(keyword), "$options": "i" } },
+            { "lastname": { "$regex": String(keyword), "$options": "i" } }
+          ]
+        },
+        { "role": "freelance" }
+      ]
+    },
+    { username: 1, firstname: 1, lastname: 1, profileImage: 1 }
+  );
+  return users;
+}
+
+
 
 export const validateToken = (auth: string) => {
   try {
