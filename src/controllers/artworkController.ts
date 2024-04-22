@@ -14,12 +14,13 @@ export default async function artworkController(fastify: FastifyInstance) {
   fastify.get(
     "/",
     async function (request: FastifyRequest, reply: FastifyReply) {
-      const { page, pageSize, type } = request.query as {
+      const { page, pageSize, type, category } = request.query as {
         page: string;
         pageSize: string;
         type: string;
+        category: string
       };
-      const artworks = await getArtwork(page, pageSize, type);
+      const artworks = await getArtwork(page, pageSize, type, category);
       reply.send(artworks);
     }
   );
