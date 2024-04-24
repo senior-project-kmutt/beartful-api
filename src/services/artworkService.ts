@@ -1,5 +1,6 @@
 import { Artworks, IArtworkEditForm, IArtworks } from "../models/artwork";
 import { Carts } from "../models/cart";
+import { getUserById } from "./userService";
 
 export const getArtwork = async (page?: string, pageSize?: string, type?: string, category?: string) => {
   const pages = page ? parseInt(page) : 1;
@@ -19,7 +20,22 @@ export const getArtwork = async (page?: string, pageSize?: string, type?: string
       : Artworks.find(query);
 
     const artworks = await artworksQuery.exec();
-    const shuffledArtworks = artworks.sort(() => Math.random() - 0.5);
+    const transformedArtworks = await Promise.all(
+      artworks.map(async (artwork: IArtworks | any) => {
+        const freelance = (await getUserById(artwork.freelanceId as unknown as string))[0];
+        const transformFreelance = {
+          username: freelance.username,
+          firstname: freelance.firstname,
+          lastname: freelance.lastname,
+          profileImage: freelance.profileImage
+        };
+        return {
+          ...artwork.toObject(),
+          freelance: transformFreelance
+        };
+      })
+    );
+    const shuffledArtworks = transformedArtworks.sort(() => Math.random() - 0.5);
     return shuffledArtworks;
   } catch (error) {
     console.error("Error fetching artworks:", error);
