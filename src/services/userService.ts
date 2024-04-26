@@ -112,7 +112,22 @@ export const getArtworkByUserName = async (username: string, page?: string, page
       : Artworks.find(query).sort({ createdAt: -1 });
 
     const artworks = await artworksQuery.exec();
-    return artworks;
+    const transformedArtworks = await Promise.all(
+      artworks.map(async (artwork: IArtworks | any) => {
+        const freelance = (await getUserById(artwork.freelanceId as unknown as string))[0];
+        const transformFreelance = {
+          username: freelance.username,
+          firstname: freelance.firstname,
+          lastname: freelance.lastname,
+          profileImage: freelance.profileImage
+        };
+        return {
+          ...artwork.toObject(),
+          freelance: transformFreelance
+        };
+      })
+    );
+    return transformedArtworks;
   } catch (error) {
     console.error("Error fetching artworks:", error);
     throw error;
